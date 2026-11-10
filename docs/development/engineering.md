@@ -21,6 +21,34 @@ uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e
 
 安装测试构建 wheel，在临时虚拟环境中安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。Windows PR 检查执行同一组命令。
 
+## 提交与合并检查
+
+提交检查使用 Node.js 22.15.0。进入仓库根目录，在审查过的分支中安装本地钩子。
+
+```shell
+node scripts/install_commit_hook.cjs
+```
+
+安装器将校验器及其依赖放入 Git 私有目录，激活 `commit-msg` 钩子。需要经过自定义 Git 执行入口时，使用 `--git-executable <原生客户端>` 和 `--git-wrapper <执行入口>`。既有钩子由安装器核对归属，独立的 `commit-msg` 需要先整合。
+
+修改校验器后运行对应测试。
+
+```shell
+node --test tests/governance/*.test.cjs
+```
+
+合并前将拟采用的标题和正文写入仓库外的 UTF-8 文件，第一行为标题，空行后为正文。
+
+```shell
+node .github/scripts/commit_message.cjs message-file <消息文件>
+```
+
+通过校验的同一标题和正文分别作为 Squash 合并的 `commit_title` 和 `commit_message`，并用已审查的 PR HEAD 作为 `sha`。修改消息后重新校验。
+
+`commit-message-tests` 检查新增校验逻辑。`governance-metadata` 从 PR 目标分支加载校验器，分页读取当前 PR 的实际提交，检查标题和提交消息。该工作流随校验器合入目标分支后启用，首次实际运行通过后加入主分支必需检查。
+
+[提交消息规则](../../CONTRIBUTING.md#提交消息与-pr-标题) · [代码来源与许可](../../.github/scripts/NOTICE.md)
+
 ## 开发入口与职责
 
 日常开发通过源码、CLI、测试、MCP 客户端、HTTP/WebSocket 和目标服务 API 完成。联调首先检查实际入口、配置和目标回执。开发 Agent 的工具权限放在专用[执行约束](../../AGENTS.md)，产品使用指南只说明产品操作。
