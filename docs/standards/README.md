@@ -19,7 +19,7 @@
 | STD-L1-001 全局治理补充 | GG-01—08 | 规范版本、权责、授权与变更决定 |
 | STD-L2-001 团队组织协作 | ORG-01—15，委派与并行条款按实际协作方式触发 | [贡献与审阅](../../CONTRIBUTING.md)、[执行约束](../../AGENTS.md) |
 | STD-L3-001 通用工程 | CE-01—21 | [工程约定](../development/engineering.md)、[架构](../architecture/README.md)、[验收](../testing/README.md) |
-| STD-L6-001 项目采用与实现验收接口 | ADP-01—07；ADP-08 用于规范采用示例 | 本页、[交付阶段](../development/delivery.md)、[验收场景](../testing/acceptance.md) |
+| STD-L6-001 项目采用与实现验收接口 | ADP-01—07，ADP-08 用于规范采用示例 | 本页、[交付阶段](../development/delivery.md)、[验收场景](../testing/acceptance.md) |
 | STD-PG-001 治理总则与职责接口 | PGF-01—06 | [文档职责](../README.md#文档职责)、[模块所有权](../architecture/README.md#模块与状态所有权) |
 | STD-PG-002 项目立项定位与范围 | PGI-01—06 | [定位](../product/overview.md)、[范围](../product/scope.md) |
 | STD-PG-003 需求设计与验收追溯 | PGT-01—06 | [需求规格](../requirements/README.md)、[验收场景](../testing/acceptance.md) |
@@ -48,13 +48,13 @@
 | 标准 | 采用范围 | 实现与验证入口 |
 | --- | --- | --- |
 | STD-L5-007 Python | STK-01—06 | CPython、锁定环境、运行时模型、资源清理、异步协议、wheel 与 sdist 安装 |
-| STD-L5-006 JavaScript / TypeScript | 当前 Node 工具的 STK-01—04、06；STK-05 随公开 JS 包交付触发 | CommonJS 检查脚本、输入验证、子进程与 Node 测试 |
+| STD-L5-006 JavaScript / TypeScript | 当前 Node 工具的 STK-01—04、06，STK-05 随公开 JS 包交付触发 | CommonJS 检查脚本、输入验证、子进程与 Node 测试 |
 | STD-L4-CLI-SDK-003 命令进程、配置与标准流 | CLI-PROC-01—05 | [快速开始](../guides/quickstart.md)、CLI 参数、UTF-8、标准流、退出与原子文件写入 |
-| STD-L4-AI-AGENT-009 工具能力契约与 MCP 互操作 | §01—10、17—20、25、33、35—40；所选 2025 协议按 §11、30、41、43 核对兼容和取消 | [当前协议](../reference/mcp.md)、[完整契约设计](../design/mcp-contract.md)、stdio 契约测试 |
+| STD-L4-AI-AGENT-009 工具能力契约与 MCP 互操作 | §01—10、17—20、25、33、35—40，所选 2025 协议按 §11、30、41、43 核对兼容和取消 | [当前协议](../reference/mcp.md)、[完整契约设计](../design/mcp-contract.md)、stdio 契约测试 |
 | STD-L4-CLOUD-001 CI 流程、Runner 与构建执行 | §01—08、11、13—14、19—28、31—38、43—48，按所用 GitHub 托管工作流适用 | `.github/workflows/`、最小权限、锁定工具、PR 与主分支检查 |
 | STD-L4-OPEN-SOURCE-001 公共接口、发行安装与消费者兼容 | OSS-R01—05 | [兼容规则](../development/compatibility.md)、[发行安装](../development/releasing.md)、制品测试 |
 | STD-L4-OPEN-SOURCE-002 开源公共生态基线 | M01—18，发行、签名与退役要求按实际动作触发 | 仓库身份、许可、贡献、依赖、安装、维护及公开接口 |
-| STD-L4-OPEN-SOURCE-003 材料许可、贡献来源与可信构建 | OSS-B01—03；OSS-B04、05 随来源证明或 SBOM 格式采用触发 | [材料来源](../../.github/scripts/NOTICE.md)、锁定依赖、制品内容与许可检查 |
+| STD-L4-OPEN-SOURCE-003 材料许可、贡献来源与可信构建 | OSS-B01—03，OSS-B04、05 随来源证明或 SBOM 格式采用触发 | [材料来源](../../.github/scripts/NOTICE.md)、锁定依赖、制品内容与许可检查 |
 | STD-L4-OPEN-SOURCE-004 生态维护、漏洞响应与终止支持 | OSS-M01—04 | [维护方式](../development/compatibility.md)、[安全报告](../../SECURITY.md) |
 
 ## 首版业务设计
@@ -62,10 +62,10 @@
 | 对象 | 标准与条款 | 设计入口及交付阶段 |
 | --- | --- | --- |
 | 领域边界与共享状态 | STD-L4-BACKEND-013，BE-001—022 | [架构与状态所有权](../architecture/README.md)、[内部接口](../architecture/interfaces.md)，D1—D5 |
-| 外部连接、事件和恢复 | STD-L4-AUTOMATION-005、006；STD-L4-BACKEND-002、003、010、011 | [运行时](../design/runtime.md)、[存储](../design/storage.md)、[直播事件](../design/events.md)，D1、D4、D5 |
-| 受控动作与执行权限 | STD-L4-AI-AGENT-004；STD-L4-SECURITY-001；STD-L4-CLOUD-013 | [安全](../design/security.md)、[角色控制](../design/avatar-performance.md)、[展台](../design/stage-obs.md)，D1、D3、D5 |
+| 外部连接、事件和恢复 | STD-L4-AUTOMATION-005、006，STD-L4-BACKEND-002、003、010、011 | [运行时](../design/runtime.md)、[存储](../design/storage.md)、[直播事件](../design/events.md)，D1、D4、D5 |
+| 受控动作与执行权限 | STD-L4-AI-AGENT-004，STD-L4-SECURITY-001，STD-L4-CLOUD-013 | [安全](../design/security.md)、[角色控制](../design/avatar-performance.md)、[展台](../design/stage-obs.md)，D1、D3、D5 |
 | 网络与实时媒体 | STD-L4-NETWORK-001—004 | [语音](../design/speech.md)、[形象](../design/avatar-performance.md)、[运行时预算](../design/runtime.md)，D2—D5 |
-| 本地 Web、渲染与交互 | STD-L4-WEB-001—009、011；STD-L5-006 的浏览器与 TypeScript 条款 | [展台](../design/stage-obs.md)、[安全](../design/security.md)、[性能](../testing/performance.md)，D5 |
+| 本地 Web、渲染与交互 | STD-L4-WEB-001—009、011，STD-L5-006 的浏览器与 TypeScript 条款 | [展台](../design/stage-obs.md)、[安全](../design/security.md)、[性能](../testing/performance.md)，D5 |
 
 各规范内的适用要求落实到对应设计与 ACC 场景。提供方、浏览器、VTS、OBS 的具体版本、权限和性能观察在该模块实施时固定，与首版功能范围一同验收。
 

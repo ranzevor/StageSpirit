@@ -32,6 +32,12 @@ async def test_discovery_status_and_unknown_tool(server_parameters: StdioServerP
                 listing = await session.list_tools()
                 assert [tool.name for tool in listing.tools] == ["runtime_status"]
                 assert listing.next_cursor is None
+                resources = await session.list_resources()
+                assert resources.resources == [] and resources.next_cursor is None
+                templates = await session.list_resource_templates()
+                assert templates.resource_templates == [] and templates.next_cursor is None
+                prompts = await session.list_prompts()
+                assert prompts.prompts == [] and prompts.next_cursor is None
                 tool = listing.tools[0]
                 assert tool.input_schema["properties"] == {}
                 assert tool.output_schema == {k: v for k, v in schema.items() if k != "$schema"}
