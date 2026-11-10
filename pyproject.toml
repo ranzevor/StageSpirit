@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "stagespirit-mcp"
+dynamic = ["version"]
+description = "StageSpirit virtual streamer integration service"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+  "filelock>=4.2.10,<5",
+  "mcp>=2.3.0,<3",
+  "platformdirs>=4.14.5,<5",
+  "pydantic>=2.12,<3",
+]
+
+[project.scripts]
+stagespirit = "stagespirit_mcp.entrypoints.cli:main"
+
+[project.urls]
+Repository = "https://github.com/ranzevor/StageSpirit"
+Issues = "https://github.com/ranzevor/StageSpirit/issues"
+
+[dependency-groups]
+dev = [
+  "hatchling==1.33.0",
+  "jsonschema>=4.25,<5",
+  "pyright>=1.1.414,<2",
+  "pytest>=9.2,<10",
+  "pytest-asyncio>=1.4.1,<2",
+  "ruff>=0.17.4,<0.18",
+]
+
+[tool.hatch.version]
+path = "src/stagespirit_mcp/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/stagespirit_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/scripts",
+  "/contracts",
+  "/docs",
+  "/examples",
+  "/.github",
+  "/README.md",
+  "/CONTRIBUTING.md",
+  "/SECURITY.md",
+  "/LICENSE",
+  "/pyproject.toml",
+  "/uv.lock",
+  "/.python-version",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+include = ["src", "scripts"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

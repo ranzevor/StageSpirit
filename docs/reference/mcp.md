@@ -2,7 +2,28 @@
 
 本文供 Agent 接入开发者查阅，描述首版 stdio MCP 的工具组织、发现、分页、回执、错误及通知契约。
 
-首版使用 stdio。协议、SDK 和消费客户端在实现时锁定，互通矩阵覆盖目录、调用、资源、通知、取消与错误。
+首版使用 stdio。互通矩阵随所属能力实现覆盖目录、调用、资源、通知、取消与错误。
+
+## 当前运行入口
+
+D1 首批注册 `runtime_status`，输入为 `{}`。互通基线为 MCP `2025-11-25`，服务端和测试客户端使用 uv.lock 中的 MCP Python SDK 2.3.0。启动及客户端配置见项目首页。
+
+| 返回字段 | 含义 |
+| --- | --- |
+| profile_id | 当前运行配置 ID |
+| data_generation | 该配置的持久数据代际，普通重启时保持 |
+| instance_id | 本次启动的实例身份 |
+| version | 当前安装的 StageSpirit 版本 |
+| state | 当前实例状态，运行时为 running |
+| process_id | 服务进程 ID |
+| started_at | UTC 启动时间 |
+| uptime_ms | 基于单调时钟计算的运行毫秒数 |
+| capability_groups | 已启用的能力组，当前为 core |
+| modules | 已装配模块的固定摘要，当前为 runtime / ready |
+
+成功结果的 `structuredContent` 与文本内容来自同一个状态对象。未知工具返回 `-32602`，未知协议方法返回 `-32601`，格式不合法的方法参数返回 `-32602`。错误请求后连接继续处理后续调用。完整字段约束由运行状态 Schema 定义。
+
+[安装与启动](../../README.md#安装与启动) · [运行状态 Schema](../../contracts/schemas/runtime-summary.schema.json)
 
 ## 工具组织与发现
 
