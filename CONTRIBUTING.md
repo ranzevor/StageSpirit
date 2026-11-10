@@ -31,6 +31,23 @@ Pull Request 说明解决的问题、修改后的行为、接口或兼容影响�
 
 [仓库结构与文档维护](docs/development/repository.md) · [需求规格](docs/requirements/README.md) · [接口契约](contracts/README.md)
 
+## 提交消息与 PR 标题
+
+提交、PR 标题及最终 Squash 消息使用 `type(scope): 简体中文具体变更主题`。`type` 与 `scope` 使用稳定英文标识，代码路径、API 和准确技术标识保留原文。
+
+```text
+feat(runtime): 增加运行配置的版本化保存
+
+按运行配置保存设置和修订，重启时加载同一份设置。
+验证并发修订冲突、写入失败和重启恢复的实际结果。
+```
+
+`feat` 用于新增能力，`fix` 用于缺陷修复，`docs` 用于文档，其他类型按实际变化选择。范围采用受影响模块，如 `runtime`、`settings`、`speech` 或 `ci`。主题说明具体行为与对象，功能和缺陷变更的正文说明原因、行为、影响及实际验证结果。破坏性变更使用 `!` 或 `BREAKING CHANGE`，并给出契约影响和迁移方式。
+
+开发环境安装本地提交钩子，创建 PR 时检查标题与各提交，合并前校验最终采用的完整 Squash 消息。操作入口见工程约定。
+
+[提交与合并检查](docs/development/engineering.md#提交与合并检查)
+
 ## 检查修改内容
 
 文档修改检查正文含义、链接、章节引用和示例是否一致。接口变更同时检查 Schema、字段说明、正反例及应用层约束，并更新受影响的验收场景。
