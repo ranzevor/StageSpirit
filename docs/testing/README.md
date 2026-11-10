@@ -6,6 +6,19 @@
 
 场景按运行配置、事件、语音、形象、展台及接口安全分组。稳定 ACC 标识关联需求，标题说明具体观察对象。
 
+## 运行基础测试
+
+D1 首批的执行入口为 `uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e`。
+
+- `tests/unit` 验证 profile 路径、长度、字符与系统保留名称。
+- `tests/integration` 验证维护状态、实例锁、代际隔离、重启、异常写入和进程退出恢复。
+- `tests/contract` 通过实际 stdio 进程验证初始化、工具目录、状态结构、协议错误、UTF-8 管道与中文路径。
+- `tests/e2e` 构建 wheel，在临时环境安装锁定的运行依赖，验证安装位置、许可、CLI 和 MCP 调用。
+
+静态检查与 Schema 生成命令见工程约定。
+
+[开发环境与检查](../development/engineering.md#开发环境与检查)
+
 ## 验证层次
 
 | 层次 | 观察对象 |

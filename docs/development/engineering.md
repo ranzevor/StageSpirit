@@ -4,6 +4,23 @@
 
 StageSpirit 以独立 Python 包交付。使用 CPython 3.12 系列、pyproject.toml 和依赖锁建立可重建环境，Windows 为首个验收平台。前端采用 TypeScript 和 Vite，静态产物随包分发。Node.js、包管理器及前端依赖在前端构建输入中固定，构建在独立目录生成产物后纳入 wheel。
 
+## 开发环境与检查
+
+当前运行基础使用 Python 3.12.3、uv 0.8.2 和 MCP Python SDK 2.3.0，完整依赖版本由 uv.lock 固定。在仓库根目录执行以下命令。
+
+```shell
+uv sync --frozen
+uv run --frozen ruff check src scripts tests
+uv run --frozen ruff format --check src scripts tests
+uv run --frozen pyright
+uv run --frozen python scripts/export_contracts.py --check
+uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e
+```
+
+`RuntimeSummary` 是运行状态输出的类型定义。变更后执行 `uv run --frozen python scripts/export_contracts.py` 更新对应 JSON Schema，再运行契约检查。
+
+安装测试构建 wheel，在临时虚拟环境中安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。Windows PR 检查执行同一组命令。
+
 ## 开发入口与职责
 
 日常开发通过源码、CLI、测试、MCP 客户端、HTTP/WebSocket 和目标服务 API 完成。联调首先检查实际入口、配置和目标回执。开发 Agent 的工具权限放在专用[执行约束](../../AGENTS.md)，产品使用指南只说明产品操作。

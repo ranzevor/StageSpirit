@@ -1,0 +1,129 @@
+import json
+import os
+import shutil
+import subprocess
+import sys
+import zipfile
+from pathlib import Path
+
+import pytest
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+from stagespirit_mcp import __version__
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(scope="module")
+def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Path]:
+    workdir = tmp_path_factory.mktemp("wheel 中文")
+    uv = shutil.which("uv")
+    assert uv is not None
+
+    def run(*arguments: str, cwd: Path = ROOT) -> None:
+        result = subprocess.run(
+            [uv, *arguments],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=180,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    run("build", "--wheel", "--no-build-isolation", "--out-dir", str(workdir / "dist"))
+    (wheel,) = (workdir / "dist").glob("*.whl")
+    requirements = workdir / "requirements.txt"
+    run(
+        "export",
+        "--frozen",
+        "--no-dev",
+        "--no-emit-project",
+        "--format",
+        "requirements-txt",
+        "--output-file",
+        str(requirements),
+    )
+    environment = workdir / "environment"
+    run("venv", "--python", sys.executable, str(environment), cwd=workdir)
+    scripts = environment / ("Scripts" if os.name == "nt" else "bin")
+    python = scripts / ("python.exe" if os.name == "nt" else "python")
+    run(
+        "pip",
+        "sync",
+        "--python",
+        str(python),
+        "--require-hashes",
+        "--index-url",
+        "https://pypi.org/simple",
+        str(requirements),
+        cwd=workdir,
+    )
+    run("pip", "install", "--python", str(python), "--no-deps", str(wheel), cwd=workdir)
+    return workdir, python, wheel
+
+
+def test_installed_import_cli_and_license(installed_wheel: tuple[Path, Path, Path]) -> None:
+    workdir, python, wheel = installed_wheel
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+    probe = subprocess.run(
+        [
+            str(python),
+            "-c",
+            "import json, stagespirit_mcp; print(json.dumps("
+            "{'path': stagespirit_mcp.__file__, 'version': stagespirit_mcp.__version__}))",
+        ],
+        cwd=workdir,
+        env=environment,
+        check=True,
+        capture_output=True,
+        timeout=20,
+    )
+    imported = json.loads(probe.stdout)
+    assert Path(imported["path"]).is_relative_to(workdir / "environment")
+    assert imported["version"] == __version__
+    command = python.with_name("stagespirit.exe" if os.name == "nt" else "stagespirit")
+    for arguments, expected in [
+        (["--version"], __version__),
+        (["--help"], "serve"),
+        (["serve", "--help"], "--profile"),
+    ]:
+        result = subprocess.run(
+            [str(command), *arguments],
+            cwd=workdir,
+            env=environment,
+            check=True,
+            capture_output=True,
+            timeout=20,
+        )
+        assert expected in result.stdout.decode("utf-8")
+        assert result.stderr == b""
+    with zipfile.ZipFile(wheel) as archive:
+        (license_path,) = (
+            name for name in archive.namelist() if name.endswith("/licenses/LICENSE")
+        )
+        assert archive.read(license_path) == (ROOT / "LICENSE").read_bytes()
+        assert all(not name.startswith(("tests/", "docs/")) for name in archive.namelist())
+
+
+@pytest.mark.asyncio
+async def test_installed_cli_mcp(installed_wheel: tuple[Path, Path, Path]) -> None:
+    workdir, python, _ = installed_wheel
+    command = python.with_name("stagespirit.exe" if os.name == "nt" else "stagespirit")
+    parameters = StdioServerParameters(
+        command=str(command),
+        args=["serve", "--profile", "installed", "--data-dir", str(workdir / "应用 数据")],
+        cwd=workdir,
+        env={"PYTHONIOENCODING": "gbk", "PYTHONUTF8": "0"},
+    )
+    async with stdio_client(parameters) as (read, write):
+        async with ClientSession(read, write, read_timeout_seconds=10) as session:
+            await session.initialize()
+            assert [tool.name for tool in (await session.list_tools()).tools] == ["runtime_status"]
+            status = await session.call_tool("runtime_status", {})
+            assert not status.is_error
+            assert status.structured_content["profile_id"] == "installed"
+            assert status.structured_content["version"] == __version__
