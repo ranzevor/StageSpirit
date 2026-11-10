@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "voice_id": "default",
+      "name": "default",
+      "provider_id": "openai_compatible",
+      "source": "configured"
+    }
+  ],
+  "next_cursor": null,
+  "has_more": false,
+  "metadata": {
+    "state": "unsupported",
+    "source": "configured",
+    "complete": false
+  },
+  "data_generation": "profile-generation-01"
+}

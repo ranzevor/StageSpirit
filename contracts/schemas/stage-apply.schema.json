@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "展台应用请求",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "preview_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "绑定修订、稳定输出槽位、目标前置条件及替换授权的预检；应用不重新指定替换对象"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration"
+    }
+  },
+  "required": [
+    "project_id",
+    "expected_revision",
+    "preview_id",
+    "idempotency_key",
+    "data_generation"
+  ],
+  "additionalProperties": false
+}

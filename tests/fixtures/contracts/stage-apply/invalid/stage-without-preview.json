@@ -1,0 +1,6 @@
+{
+  "project_id": "stage-example",
+  "expected_revision": 7,
+  "idempotency_key": "apply-negative-001",
+  "data_generation": "profile-generation-01"
+}

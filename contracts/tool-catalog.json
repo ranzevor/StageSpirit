@@ -1,0 +1,1442 @@
+{
+  "format_version": 1,
+  "coverage": "工具操作边界、输入语义与结果类型；共享对象和关键请求另有JSON Schema",
+  "pagination": {
+    "default_limit": 50,
+    "max_limit": 200
+  },
+  "tools": [
+    {
+      "name": "runtime_status",
+      "domain": "runtime",
+      "kind": "query",
+      "summary": "读取固定模块摘要和实例状态",
+      "input": {},
+      "output": "RuntimeSummary",
+      "capability_group": "core",
+      "output_semantics": "包含当前data_generation与固定模块摘要"
+    },
+    {
+      "name": "runtime_capabilities",
+      "domain": "runtime",
+      "kind": "query",
+      "summary": "读取单个连接的实际能力",
+      "input": {
+        "connection_id": "目标连接"
+      },
+      "output": "ConnectionCapabilities",
+      "capability_group": "core"
+    },
+    {
+      "name": "connection_list",
+      "domain": "settings",
+      "kind": "query",
+      "summary": "列出连接摘要",
+      "input": {
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ConnectionSummary>",
+      "paged": true,
+      "capability_group": "core",
+      "output_semantics": "连接摘要包含connection_id与共享协调域target_id，同一外部服务的别名共用target_id"
+    },
+    {
+      "name": "connection_get",
+      "domain": "settings",
+      "kind": "query",
+      "summary": "读取连接配置和观察状态",
+      "input": {
+        "connection_id": "目标连接"
+      },
+      "output": "ConnectionDetail",
+      "capability_group": "core",
+      "output_semantics": "connection_id标识连接配置，target_id标识实际外部服务的内部协调目标"
+    },
+    {
+      "name": "connection_save",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "创建或更新版本化连接并触发所属配置激活",
+      "input": {
+        "connection_id": "目标连接",
+        "expected_revision": "当前配置修订，创建时为0",
+        "configuration": "提供方的类型化连接配置，别名可复用已有target_id指向同一外部服务",
+        "credential_updates": "可选的明确凭据变更",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "core"
+    },
+    {
+      "name": "connection_connect",
+      "domain": "runtime",
+      "kind": "command",
+      "summary": "建立目标连接",
+      "input": {
+        "connection_id": "目标连接",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "connection_disconnect",
+      "domain": "runtime",
+      "kind": "command",
+      "summary": "断开目标连接",
+      "input": {
+        "connection_id": "目标连接",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "settings_get",
+      "domain": "settings",
+      "kind": "query",
+      "summary": "读取指定配置范围的修订、标量设置和集合入口",
+      "input": {
+        "section": "模块分区",
+        "scope_id": "可选模型或配置范围"
+      },
+      "output": "ConfigurationSection",
+      "capability_group": "core"
+    },
+    {
+      "name": "settings_save",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "保存单个配置分区并触发所属配置激活",
+      "input": {
+        "section": "模块分区",
+        "scope_id": "可选范围",
+        "expected_revision": "当前修订",
+        "changes": "按分区Schema校验的变更",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "core"
+    },
+    {
+      "name": "settings_apply",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "再次应用当前已保存配置修订",
+      "input": {
+        "section": "模块分区",
+        "revision": "必须等于该范围当前保存修订，拒绝用旧保存修订回滚活动值",
+        "idempotency_key": "逻辑操作键",
+        "scope_id": "可选配置范围，与原保存回执一致",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "settings_export",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "导出完整配置到文件资源",
+      "input": {
+        "profile_id": "当前运行配置身份，须与实例授权范围一致",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ResourceReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/ResourceReceipt"
+    },
+    {
+      "name": "settings_import",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "预览或提交版本化导入",
+      "input": {
+        "resource_id": "配置资源",
+        "mode": "preview或commit",
+        "expected_revision": "目标运行配置修订，预览和提交均校验",
+        "preview_id": "commit时使用原预览身份，重复提交读取原提交结果",
+        "strategy": "merge或replace，预览固定且提交时保持一致",
+        "delete_sections": "merge时可选的明确删除范围，按section与scope_id标识",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ImportResult",
+      "capability_group": "core"
+    },
+    {
+      "name": "event_list",
+      "domain": "live_events",
+      "kind": "query",
+      "summary": "按稳定水位查询历史事件",
+      "input": {
+        "connection_id": "可选",
+        "event_type": "可选",
+        "uid": "可选",
+        "from_time": "可选RFC3339时间",
+        "to_time": "可选RFC3339时间",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标",
+        "after_sequence": "可选本地水位，仅返回大于此序列的事件；与cursor续页时保持一致",
+        "data_generation": "使用after_sequence时必填，与已保存水位属于同一数据代际"
+      },
+      "output": "Page<LiveEvent>",
+      "paged": true,
+      "capability_group": "live_events",
+      "output_semantics": "事件保留接收时source身份快照，上游消息身份按适配器声明的来源作用域去重"
+    },
+    {
+      "name": "event_get",
+      "domain": "live_events",
+      "kind": "query",
+      "summary": "读取完整事件正文和业务字段",
+      "input": {
+        "event_id": "本地事件身份"
+      },
+      "output": "LiveEvent",
+      "output_schema": "schemas/live-event.schema.json",
+      "capability_group": "live_events"
+    },
+    {
+      "name": "rule_list",
+      "domain": "live_events",
+      "kind": "query",
+      "summary": "列出过滤或触发规则",
+      "input": {
+        "kind": "filter或trigger",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<RuleSummary>",
+      "paged": true,
+      "capability_group": "live_events"
+    },
+    {
+      "name": "rule_get",
+      "domain": "live_events",
+      "kind": "query",
+      "summary": "读取规则详情",
+      "input": {
+        "rule_id": "规则身份"
+      },
+      "output": "Rule",
+      "capability_group": "live_events"
+    },
+    {
+      "name": "rule_save",
+      "domain": "live_events",
+      "kind": "command",
+      "summary": "创建或更新类型化规则并触发所属配置激活",
+      "input": {
+        "expected_revision": "规则修订",
+        "rule": "过滤或触发规则，含类型、动作和冷却",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "live_events"
+    },
+    {
+      "name": "rule_delete",
+      "domain": "live_events",
+      "kind": "command",
+      "summary": "按修订删除规则",
+      "input": {
+        "rule_id": "规则身份",
+        "expected_revision": "当前修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "live_events"
+    },
+    {
+      "name": "voice_list",
+      "domain": "speech",
+      "kind": "query",
+      "summary": "发现或读取指定连接的音色目录",
+      "input": {
+        "connection_id": "音频连接",
+        "language": "可选语言前缀",
+        "refresh": "可选，仅无cursor的首个请求可刷新目录快照",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "VoicePage",
+      "paged": true,
+      "capability_group": "speech",
+      "output_schema": "schemas/voice-page.schema.json"
+    },
+    {
+      "name": "voice_get",
+      "domain": "speech",
+      "kind": "query",
+      "summary": "读取音色、模型和后端选项",
+      "input": {
+        "connection_id": "音频连接",
+        "voice_id": "目录中的稳定音色身份"
+      },
+      "output": "VoiceDetail",
+      "capability_group": "speech"
+    },
+    {
+      "name": "speech_speak",
+      "domain": "speech",
+      "kind": "command",
+      "summary": "按语音配置受理、合成并排队播放",
+      "input": {
+        "text": "朗读正文",
+        "idempotency_key": "逻辑操作键",
+        "voice_id": "可选音色身份",
+        "language": "可选语言",
+        "text_mode": "spoken或verbatim",
+        "priority": "整数0至9，默认5，数值大者先取得播放权，同级按持久enqueue_sequence先进先出，仅影响尚未取得播放权的任务",
+        "interrupt_current": "默认false。true受理后请求固定旧播放停止并保留一次下一播放权；核对旧任务适配器停止能力，空闲槽位直接准备；已有未完成切换时返回PLAYBACK_SWITCH_BUSY",
+        "style": "提供方支持时的风格提示",
+        "connection_id": "可选，省略时使用默认语音连接",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "input_schema": "schemas/speech-request.schema.json",
+      "capability_group": "speech",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "output_semantics": "取得播放权进入starting后不被普通后到请求自动打断。interrupt_current的下一播放权在旧播放已停止且设备与控制释放后执行，普通排队请求不越过该保留。替代任务进入starting时消费保留权并结束切换。待播容量默认64，并发合成默认2，待播满额受理前返回QUEUE_FULL，其他资源超限返回RESOURCE_LIMIT，去重使用data_generation与idempotency_key"
+    },
+    {
+      "name": "speech_synthesize",
+      "domain": "speech",
+      "kind": "command",
+      "summary": "合成音频文件，不播放",
+      "input": {
+        "text": "朗读正文",
+        "voice_id": "可选音色身份",
+        "language": "可选语言",
+        "text_mode": "spoken或verbatim",
+        "style": "提供方支持时的风格提示",
+        "idempotency_key": "逻辑操作键",
+        "connection_id": "可选，省略时使用默认语音连接",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "input_schema": "schemas/synthesis-request.schema.json",
+      "capability_group": "speech",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "speech_stop",
+      "domain": "speech",
+      "kind": "command",
+      "summary": "停止选定的当前或排队播放",
+      "input": {
+        "operation_id": "明确选择当前、待播或持有下一播放权的播放操作",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "speech",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "output_semantics": "仅停止选定操作，待播操作从队列移除，持有下一播放权的操作停止时释放该保留。当前播放确认停止并释放设备与控制后才允许下一播放启动，相同逻辑重试沿用原幂等键"
+    },
+    {
+      "name": "transcription_submit",
+      "domain": "transcription",
+      "kind": "command",
+      "summary": "提交受控音频转写",
+      "input": {
+        "connection_id": "转写连接",
+        "audio_resource_id": "已授权音频资源",
+        "language": "可选",
+        "prompt": "可选上下文",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "transcription",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "operation_list",
+      "domain": "runtime",
+      "kind": "query",
+      "summary": "列出操作摘要",
+      "input": {
+        "domain": "可选模块",
+        "state": "可选状态",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<OperationSummary>",
+      "paged": true,
+      "capability_group": "core"
+    },
+    {
+      "name": "operation_get",
+      "domain": "runtime",
+      "kind": "query",
+      "summary": "读取操作状态、效果和结果引用",
+      "input": {
+        "operation_id": "原操作身份"
+      },
+      "output": "OperationDetail",
+      "output_schema": "schemas/operation-detail.schema.json",
+      "capability_group": "core"
+    },
+    {
+      "name": "operation_cancel",
+      "domain": "runtime",
+      "kind": "command",
+      "summary": "向可取消操作请求取消",
+      "input": {
+        "operation_id": "原操作身份",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_models_list",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "列出可用模型",
+      "input": {
+        "connection_id": "VTS连接",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ModelSummary>",
+      "paged": true,
+      "capability_group": "avatar",
+      "output_semantics": "模型摘要返回model_id及绑定的connection_id与provider_model_id"
+    },
+    {
+      "name": "avatar_model_load",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "加载模型并更新代际",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_model_move",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "移动、旋转或缩放当前模型",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前模型代际",
+        "position": "类型化位置、旋转、缩放和时长",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_item_load",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "加载模型道具",
+      "input": {
+        "connection_id": "VTS连接",
+        "item": "类型化道具身份与位置",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_hotkeys_list",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "列出当前代际热键",
+      "input": {
+        "connection_id": "VTS连接",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<HotkeySummary>",
+      "paged": true,
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_hotkey_run",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "解析当前模型逻辑绑定后执行热键",
+      "input": {
+        "connection_id": "VTS连接",
+        "binding": "模型范围内的稳定绑定",
+        "model_generation": "当前代际",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_expressions_list",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "列出表情及激活状态",
+      "input": {
+        "connection_id": "VTS连接",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ExpressionSummary>",
+      "paged": true,
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_expression_set",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "切换互斥组或叠加表情并回读",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前代际",
+        "expression": "表情身份或预设",
+        "mode": "exclusive或additive",
+        "enabled": "目标激活状态",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "avatar_presets_list",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "列出模型表情组合",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ExpressionPresetSummary>",
+      "paged": true,
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_preset_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取单个表情组合",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "preset_id": "组合身份"
+      },
+      "output": "ExpressionPreset",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_preset_save",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "保存模型表情组合并触发所属配置激活",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "expected_revision": "当前修订",
+        "preset": "互斥组、成员和嘴部覆盖策略",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_preset_delete",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "删除模型表情组合",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "preset_id": "组合身份",
+        "expected_revision": "当前修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_parameters_list",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "分页查询追踪输入、模型参数或映射",
+      "input": {
+        "connection_id": "VTS连接",
+        "kind": "tracking_input、model_output或mapping",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ParameterSummary>",
+      "paged": true,
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_parameter_write",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "经实际输出集合的整组仲裁写入输入通道",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前代际",
+        "parameters": "同一次意图的输入名称和值，先映射出完整实际输出集合再整组授予。两不同输入在该意图中指向同一实际输出时返回PARAMETER_CONFLICT，模型自身的多对一映射合法",
+        "duration_ms": "本次意图整组实际输出控制的租约时长",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "avatar",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "output_semantics": "控制权整组授予或拒绝。传输部分失败回读实际效果并沿原操作恢复。同级明确控制由先持有者保留，后到请求返回PARAMETER_BUSY，参数占用不候补。既有互斥表情组切换继续串行。内部lease_id区分每次授予，同owner重新授予后旧回调与旧释放均无效"
+    },
+    {
+      "name": "lip_sync_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取单个模型嘴型配置与状态",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id"
+      },
+      "output": "LipSyncDetail",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "lip_sync_save",
+      "domain": "avatar",
+      "kind": "command",
+      "summary": "保存嘴型映射和增益并触发所属配置激活",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "expected_revision": "当前修订",
+        "configuration": "启用状态、输入绑定、增益、门限、平滑及覆盖策略",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "semantic_mappings_list",
+      "domain": "performance",
+      "kind": "query",
+      "summary": "分页查询语义映射摘要",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<SemanticMappingSummary>",
+      "paged": true,
+      "capability_group": "performance"
+    },
+    {
+      "name": "semantic_mapping_get",
+      "domain": "performance",
+      "kind": "query",
+      "summary": "读取单条完整语义映射",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "mapping_id": "映射身份"
+      },
+      "output": "SemanticMapping",
+      "capability_group": "performance"
+    },
+    {
+      "name": "semantic_mappings_save",
+      "domain": "performance",
+      "kind": "command",
+      "summary": "独立保存并激活关键词映射",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "expected_revision": "当前映射修订",
+        "mode": "merge或replace",
+        "enabled": "模型语义启用状态",
+        "recognition_instructions": "可选配置维护说明",
+        "mappings": "按Schema校验的映射条目，priority范围0至100、默认50。同一固定调度批次内语义意图按priority降序，再按mapping_id、model_id、intent_id升序确定仲裁胜出顺序",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "input_schema": "schemas/semantic-mapping.schema.json",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "performance",
+      "output_semantics": "保存后触发激活，模型未加载时保留活动修订与具体未激活原因，模型激活事件重试同一保存修订。执行按每次意图解析完整实际输出集合，任一输出忙则整意图跳过且不候补。两不同输入在同一意图内映射同一输出返回PARAMETER_CONFLICT，模型自身多对一映射合法。每次整组授予取得独立内部lease_id，同owner重新授予后旧回调无效"
+    },
+    {
+      "name": "semantic_mapping_delete",
+      "domain": "performance",
+      "kind": "command",
+      "summary": "按修订删除模型映射",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "mapping_id": "映射身份",
+        "expected_revision": "当前修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ConfigurationReceipt",
+      "output_schema": "schemas/configuration-receipt.schema.json",
+      "capability_group": "performance"
+    },
+    {
+      "name": "obs_scenes_list",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "列出OBS场景",
+      "input": {
+        "connection_id": "OBS连接",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<SceneSummary>",
+      "paged": true,
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "obs_scene_items_list",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "列出场景项",
+      "input": {
+        "connection_id": "OBS连接",
+        "scene_id": "场景身份",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<SceneItemSummary>",
+      "paged": true,
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "obs_scene_switch",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "显式切换节目场景",
+      "input": {
+        "connection_id": "OBS连接",
+        "scene_id": "场景身份",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_visibility_set",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "设置明确场景项的可见性",
+      "input": {
+        "connection_id": "OBS连接",
+        "scene_id": "场景身份",
+        "scene_item_id": "场景项身份",
+        "visible": "布尔值",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_text_set",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "修改文字来源的正文",
+      "input": {
+        "connection_id": "OBS连接",
+        "source_id": "来源身份",
+        "text": "完整文本",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_filter_set",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "启用或关闭已知滤镜",
+      "input": {
+        "connection_id": "OBS连接",
+        "source_id": "来源身份",
+        "filter_name": "滤镜名称",
+        "enabled": "布尔值",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_stream_set",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "显式开始或停止推流",
+      "input": {
+        "connection_id": "OBS连接",
+        "enabled": "目标状态，不做toggle",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_recording_set",
+      "domain": "broadcast",
+      "kind": "command",
+      "summary": "显式开始或停止录制",
+      "input": {
+        "connection_id": "OBS连接",
+        "enabled": "目标状态，不做toggle",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "broadcast",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "obs_stats_get",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "读取固定OBS运行统计",
+      "input": {
+        "connection_id": "OBS连接"
+      },
+      "output": "OBSStatistics",
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "obs_stream_status",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "读取推流与录制观察状态",
+      "input": {
+        "connection_id": "OBS连接"
+      },
+      "output": "OBSOutputStatus",
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "stage_projects_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "列出展台项目摘要",
+      "input": {
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<StageProjectSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_project_create",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "创建展台项目",
+      "input": {
+        "name": "展示名称",
+        "canvas": "画布规格",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "StageProjectSummary",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_project_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取单个项目元数据与当前修订",
+      "input": {
+        "project_id": "项目身份"
+      },
+      "output": "StageProjectSummary",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_edit",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "执行类型化编辑命令",
+      "input": {
+        "project_id": "项目身份",
+        "expected_revision": "当前修订",
+        "commands": "见contracts/README.md的类型化编辑变体",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "RevisionReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_widgets_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页查询组件摘要",
+      "input": {
+        "project_id": "项目身份",
+        "revision": "目标修订",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<WidgetSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_widget_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取组件设置、当前状态与集合入口",
+      "input": {
+        "project_id": "项目身份",
+        "widget_id": "组件身份",
+        "revision": "目标修订"
+      },
+      "output": "Widget",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_strokes_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页读取白板笔迹",
+      "input": {
+        "project_id": "项目身份",
+        "widget_id": "白板身份",
+        "revision": "目标修订",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<Stroke>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_presets_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "列出可用展台预设",
+      "input": {
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<StagePresetSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_revisions_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "列出项目修订摘要",
+      "input": {
+        "project_id": "项目身份",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<RevisionSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_revision_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取修订元数据和清单资源",
+      "input": {
+        "project_id": "项目身份",
+        "revision": "修订"
+      },
+      "output": "RevisionManifestReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_project_export",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "导出完整展台到文件资源",
+      "input": {
+        "project_id": "项目身份",
+        "revision": "目标修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "ResourceReceipt",
+      "capability_group": "stage",
+      "output_schema": "schemas/common.schema.json#/$defs/ResourceReceipt"
+    },
+    {
+      "name": "stage_prepare",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "只读核对OBS并生成绑定稳定槽位、归属和替换授权的预检计划",
+      "input": {
+        "project_id": "项目身份",
+        "expected_revision": "当前修订",
+        "binding": "OBS连接、场景与明确来源绑定",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际",
+        "replace_output_id": "可选，仅当前profile内的已有占用输出；另一项目接管同一实际目标场景时必填，固定旧owner、output及state_sequence于计划"
+      },
+      "output": "StagePreview",
+      "output_schema": "schemas/stage-preview.schema.json",
+      "capability_group": "stage",
+      "output_semantics": "StagePreview包含profile_id、target_id、output_slot_id及可选occupied_output固定摘要；准备不创建来源或取得长期写锁，归属冲突返回OUTPUT_CONFLICT，候选资源预算不足返回RESOURCE_LIMIT"
+    },
+    {
+      "name": "stage_apply",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "应用已准备候选并回读核对",
+      "input": {
+        "project_id": "目标展台项目",
+        "expected_revision": "待应用修订",
+        "preview_id": "绑定目标、修订、稳定槽位、旧owner状态及替换授权的预检；不重新传入替换对象",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "input_schema": "schemas/stage-apply.schema.json",
+      "capability_group": "stage",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "result_schema": "schemas/stage-output.schema.json#/$defs/StageApplyResult",
+      "result_semantics": "完成后OperationDetail.result_resource_id引用StageApplyResult资源，包含target_id、output_slot_id及替换时的replaces_output_id；其output_id用于stage_output_get。同项目不同目标或场景的其他输出继续保留"
+    },
+    {
+      "name": "stage_restore",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "按原stage应用或释放操作记录继续核对、清理或补偿",
+      "input": {
+        "operation_id": "原stage应用或stage_output_release操作；沿OperationDetail.recovery继续，不重启failed执行状态",
+        "idempotency_key": "恢复逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "stage",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "stage_output_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取指定输出的稳定槽位、布局修订、生命周期、引用摘要和受限URL",
+      "input": {
+        "output_id": "原应用结果中的稳定输出身份"
+      },
+      "output": "StageOutputSummary",
+      "capability_group": "stage",
+      "output_schema": "schemas/stage-output.schema.json"
+    },
+    {
+      "name": "stage_output_release",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "按输出权限和状态序列释放受管场景项并撤销输出访问",
+      "input": {
+        "data_generation": "必填，当前运行配置的非空不透明数据代际",
+        "output_id": "当前profile内的稳定输出身份",
+        "expected_state_sequence": "stage_output_get取得的当前状态序列",
+        "idempotency_key": "释放逻辑操作键"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "stage",
+      "input_schema": "schemas/stage-output.schema.json#/$defs/StageOutputRelease",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "output_semantics": "释放与原应用、释放及恢复串行；状态或归属冲突返回OUTPUT_CONFLICT并提供已有原operation_id。完成清理后released且撤销令牌和订阅，外部引用输入保留；部分失败返回RECOVERY_CONFLICT及原operation_id，通过stage_restore沿原阶段继续。已released且当前序列匹配的新请求返回无新增外部效果的完成回执"
+    },
+    {
+      "name": "stage_capture_bind",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "绑定窗口捕获或明确已有来源",
+      "input": {
+        "project_id": "项目身份",
+        "expected_revision": "当前修订",
+        "widget_id": "捕获组件",
+        "binding": "类型化捕获绑定",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "RevisionReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_media_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页查询媒体摘要",
+      "input": {
+        "project_id": "可选项目身份",
+        "media_type": "可选类型",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<MediaSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_media_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取单个媒体元数据和访问资源",
+      "input": {
+        "resource_id": "媒体身份"
+      },
+      "output": "MediaDetail",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_media_import",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "校验并导入媒体",
+      "input": {
+        "input_resource_id": "已授权上传或文件资源",
+        "project_id": "可选所属项目",
+        "idempotency_key": "逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "stage",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "stage_media_delete",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "删除未被有效修订或恢复记录引用的媒体",
+      "input": {
+        "resource_id": "媒体身份",
+        "expected_revision": "资源修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "DeletionReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "provider_list",
+      "domain": "settings",
+      "kind": "query",
+      "summary": "建立连接前发现已安装的提供方",
+      "input": {
+        "service": "可选服务类型",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同筛选的后续游标"
+      },
+      "output": "Page<ProviderSummary>",
+      "paged": true,
+      "capability_group": "core"
+    },
+    {
+      "name": "provider_get",
+      "domain": "settings",
+      "kind": "query",
+      "summary": "读取单个提供方的配置字段和声明能力",
+      "input": {
+        "provider_id": "提供方身份"
+      },
+      "output": "ProviderDetail",
+      "capability_group": "core"
+    },
+    {
+      "name": "stage_preview_changes_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页读取当前预检绑定的具体变更",
+      "input": {
+        "preview_id": "预检身份",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同预检快照的后续游标"
+      },
+      "output": "Page<StageChange>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "settings_backup",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "显式创建当前运行配置与引用媒体的一致备份",
+      "input": {
+        "idempotency_key": "备份逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "OperationReceipt",
+      "capability_group": "core",
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+    },
+    {
+      "name": "settings_restore",
+      "domain": "settings",
+      "kind": "command",
+      "summary": "预览或在维护窗口恢复明确选择的备份",
+      "input": {
+        "resource_id": "已授权备份资源",
+        "mode": "preview或commit",
+        "expected_revision": "目标运行配置修订",
+        "preview_id": "commit时绑定的恢复预览",
+        "idempotency_key": "commit时的恢复逻辑操作键",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "RestorePreview | OperationReceipt",
+      "capability_group": "core"
+    },
+    {
+      "name": "avatar_model_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取单个模型元数据与能力入口",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id"
+      },
+      "output": "ModelDetail",
+      "capability_group": "avatar",
+      "output_semantics": "返回profile内唯一的model_id，以及绑定的VTS connection_id与provider_model_id"
+    },
+    {
+      "name": "avatar_hotkey_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取当前模型代际内的热键与作用范围",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前代际",
+        "hotkey_id": "当前目录中的热键身份"
+      },
+      "output": "HotkeyDetail",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_expression_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取单个表情的覆盖参数与状态",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前代际",
+        "expression_id": "当前目录中的表情身份"
+      },
+      "output": "ExpressionDetail",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "avatar_parameter_get",
+      "domain": "avatar",
+      "kind": "query",
+      "summary": "读取单个输入、输出或映射详情",
+      "input": {
+        "connection_id": "VTS连接",
+        "model_generation": "当前代际",
+        "kind": "tracking_input、model_output或mapping",
+        "parameter_id": "列表返回的该类型对象身份"
+      },
+      "output": "ParameterDetail",
+      "capability_group": "avatar"
+    },
+    {
+      "name": "obs_scene_get",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "读取单个场景身份、状态及场景项入口",
+      "input": {
+        "connection_id": "OBS连接",
+        "scene_id": "场景身份"
+      },
+      "output": "SceneDetail",
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "obs_scene_item_get",
+      "domain": "broadcast",
+      "kind": "query",
+      "summary": "读取场景项、来源身份及实际属性",
+      "input": {
+        "connection_id": "OBS连接",
+        "scene_id": "场景身份",
+        "scene_item_id": "场景项身份"
+      },
+      "output": "SceneItemDetail",
+      "capability_group": "broadcast"
+    },
+    {
+      "name": "stage_preset_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取单个展台预设的元数据和内容资源",
+      "input": {
+        "preset_id": "预设身份"
+      },
+      "output": "StagePresetDetail",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_preset_save",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "创建或更新展台预设",
+      "input": {
+        "preset_id": "预设身份",
+        "expected_revision": "预设当前修订，创建为0",
+        "project_id": "内容来源项目",
+        "revision": "内容来源修订",
+        "name": "展示名称",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "RevisionReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_preset_delete",
+      "domain": "stage",
+      "kind": "command",
+      "summary": "按修订删除展台预设",
+      "input": {
+        "preset_id": "预设身份",
+        "expected_revision": "当前修订",
+        "data_generation": "必填，当前运行配置的非空不透明数据代际"
+      },
+      "output": "DeletionReceipt",
+      "capability_group": "stage"
+    },
+    {
+      "name": "resource_get",
+      "domain": "runtime",
+      "kind": "query",
+      "summary": "按资源身份读取访问元数据与MCP资源URI",
+      "input": {
+        "resource_id": "当前运行配置内已授权的资源身份"
+      },
+      "output": "ResourceReceipt",
+      "output_schema": "schemas/common.schema.json#/$defs/ResourceReceipt",
+      "capability_group": "core"
+    },
+    {
+      "name": "stage_notices_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页读取公告组件条目",
+      "input": {
+        "project_id": "项目身份",
+        "widget_id": "公告组件身份",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同组件状态快照的后续游标"
+      },
+      "output": "Page<NoticeSummary>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_notice_get",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "读取单条公告正文及展示属性",
+      "input": {
+        "project_id": "项目身份",
+        "widget_id": "公告组件身份",
+        "notice_id": "公告条目身份"
+      },
+      "output": "NoticeDetail",
+      "capability_group": "stage"
+    },
+    {
+      "name": "stage_chat_list",
+      "domain": "stage",
+      "kind": "query",
+      "summary": "分页读取当前展示聊天与对应事件身份",
+      "input": {
+        "project_id": "项目身份",
+        "widget_id": "聊天组件身份",
+        "limit": "可选整数，默认50，范围1至200",
+        "cursor": "可选，同组件状态快照的后续游标"
+      },
+      "output": "Page<StageChatEntry>",
+      "paged": true,
+      "capability_group": "stage"
+    },
+    {
+      "name": "semantic_status_get",
+      "domain": "performance",
+      "kind": "query",
+      "summary": "读取模型语义调度的固定状态摘要",
+      "input": {
+        "model_id": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id",
+        "playback_id": "可选，限定播放身份"
+      },
+      "output": "SemanticStatus",
+      "output_schema": "schemas/semantic-status.schema.json",
+      "capability_group": "performance",
+      "output_semantics": "固定摘要中的active_intent_count与skipped_intent_count按整组实际输出仲裁计数。语义意图使用priority默认50的确定排序，任一输出忙则整意图跳过。内部lease_id使同owner重新授予后的旧回调不改变当前计数或控制，不在该摘要展开增长的意图集合"
+    }
+  ],
+  "stage_edit_variants": [
+    "set_layout",
+    "set_skin",
+    "apply_preset",
+    "upsert_widget",
+    "remove_widget",
+    "set_whiteboard_text",
+    "clear_whiteboard",
+    "append_strokes",
+    "set_notices",
+    "notice_action",
+    "chat_action",
+    "hide_subtitle",
+    "undo",
+    "redo"
+  ],
+  "discovery": {
+    "always_available": [
+      "core"
+    ],
+    "business_groups": [
+      "live_events",
+      "speech",
+      "transcription",
+      "avatar",
+      "performance",
+      "broadcast",
+      "stage"
+    ],
+    "activation": "运行配置启用且对应适配器已安装",
+    "connection_failure": "保留工具，返回目标连接错误",
+    "catalog_changes": "使用所选MCP版本实际支持的目录变化机制"
+  },
+  "execution_semantics": {
+    "data_generation": "所有非query输入必须携带当前data_generation，旧代际幂等重请求只能读取已有结果，不得新受理",
+    "transport_cancellation": "传输请求取消只取消等待，已受理的持久操作通过operation_cancel取消",
+    "business_errors": "通过CallToolResult的isError和结构化Error返回",
+    "protocol_errors": "仅用于未知工具、JSON-RPC方法等接入问题，精确包络在D1锁定协议版本时完成互通"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "operation_id": "op-speech-example",
+  "playback_id": "playback-example",
+  "playback_generation": 1,
+  "sequence": 1,
+  "text_revision": 1,
+  "text": "[laughter]真的成功了！[任意提示]",
+  "phase": "prepared",
+  "clock": {
+    "kind": "native_lifecycle"
+  },
+  "connection_id": "speech-example",
+  "data_generation": "profile-generation-01",
+  "occurred_at": "2026-11-10T10:00:00+08:00"
+}

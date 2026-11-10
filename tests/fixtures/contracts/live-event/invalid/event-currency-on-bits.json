@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "event_id": "evt-negative-001",
+  "connection_id": "twitch-main",
+  "platform": "twitch",
+  "event_type": "gift",
+  "occurred_at": "2026-11-07T10:02:00+08:00",
+  "received_at": "2026-11-07T10:02:01+08:00",
+  "viewer": {
+    "uid": "10003",
+    "display_name": "Mori"
+  },
+  "text": "Cheer100",
+  "value": {
+    "amount": "100",
+    "unit": "bits",
+    "currency": "USD"
+  },
+  "gift": {
+    "name": "Bits",
+    "quantity": 100
+  },
+  "sequence": 3,
+  "data_generation": "profile-generation-01",
+  "source": {
+    "source_id": "channel-example",
+    "display_name": "Example channel",
+    "broadcast_id": "broadcast-example"
+  }
+}

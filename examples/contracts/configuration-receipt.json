@@ -1,0 +1,12 @@
+{
+  "section": "speech",
+  "saved_revision": 3,
+  "active_revision": 2,
+  "application_state": "failed",
+  "error": {
+    "code": "CONNECTION_UNAVAILABLE",
+    "message": "目标语音连接超时",
+    "retryable": true
+  },
+  "data_generation": "profile-generation-01"
+}

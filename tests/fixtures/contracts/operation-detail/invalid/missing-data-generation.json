@@ -1,0 +1,10 @@
+{
+  "operation_id": "apply-example-007",
+  "state": "outcome_unknown",
+  "execution_generation": 1,
+  "effect_state": "unknown",
+  "recovery": {
+    "state": "running",
+    "details_resource_id": "recovery-example-007"
+  }
+}

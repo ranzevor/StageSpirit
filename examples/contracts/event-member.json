@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "event_id": "evt-example-004",
+  "sequence": 4,
+  "connection_id": "twitch-main",
+  "platform": "twitch",
+  "event_type": "member",
+  "received_at": "2026-11-10T10:03:00+08:00",
+  "viewer": {
+    "is_anonymous": true
+  },
+  "text": "",
+  "membership": {
+    "name": "赠送订阅",
+    "quantity": 5,
+    "plan": "gifted_subscription"
+  },
+  "data_generation": "profile-generation-01",
+  "source": {
+    "source_id": "channel-example",
+    "display_name": "Example channel",
+    "broadcast_id": "broadcast-example"
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "模型语义映射保存请求",
+  "type": "object",
+  "properties": {
+    "model_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "StageSpirit内部模型身份，profile内唯一，绑定VTS connection_id与provider_model_id"
+    },
+    "expected_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "mode": {
+      "enum": [
+        "merge",
+        "replace"
+      ]
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "recognition_instructions": {
+      "type": "string"
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Mapping"
+      }
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration"
+    }
+  },
+  "required": [
+    "model_id",
+    "expected_revision",
+    "mode",
+    "enabled",
+    "mappings",
+    "data_generation"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Mapping": {
+      "type": "object",
+      "properties": {
+        "mapping_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "match_mode": {
+          "enum": [
+            "literal",
+            "literal_casefold"
+          ]
+        },
+        "parameters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "input_name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "input_name",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "description": "一次命中的完整意图，解析后的最终输出集合整组授予或跳过。同条目不同输入映射到重叠输出时由应用层拒绝 PARAMETER_CONFLICT。"
+        },
+        "transition_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hold_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_keywords": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": [],
+          "uniqueItems": true
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50,
+          "description": "语义内部数值大者优先，省略按50处理。同级依次按mapping_id、model_id及生成的稳定intent_id升序仲裁。"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "label",
+        "keywords",
+        "match_mode",
+        "parameters",
+        "transition_ms",
+        "hold_ms"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

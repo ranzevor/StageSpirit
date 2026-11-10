@@ -1,0 +1,8 @@
+{
+  "project_id": "stage-example",
+  "expected_revision": 7,
+  "preview_id": "preview-example-007",
+  "idempotency_key": "apply-example-007",
+  "data_generation": "profile-generation-01",
+  "replace_output_id": "output-other"
+}

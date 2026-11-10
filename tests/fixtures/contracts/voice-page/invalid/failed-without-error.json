@@ -1,0 +1,11 @@
+{
+  "items": [],
+  "next_cursor": null,
+  "has_more": false,
+  "metadata": {
+    "state": "failed",
+    "source": "discovered",
+    "complete": false
+  },
+  "data_generation": "profile-generation-01"
+}

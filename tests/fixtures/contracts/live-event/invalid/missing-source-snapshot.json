@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "event_id": "evt-example-001",
+  "connection_id": "live-main",
+  "platform": "bilibili",
+  "event_type": "superchat",
+  "occurred_at": "2026-11-07T10:00:00+08:00",
+  "received_at": "2026-11-07T10:00:01+08:00",
+  "upstream_message_id": "sc-701",
+  "viewer": {
+    "uid": "10001",
+    "display_name": "青禾",
+    "user_level": 12,
+    "is_member": true,
+    "guard_level": 3,
+    "medal": {
+      "name": "小树",
+      "level": 8
+    }
+  },
+  "text": "今天的讲解很清楚，谢谢你！也祝大家周末愉快。",
+  "paid": true,
+  "value": {
+    "amount": "30.00",
+    "unit": "currency",
+    "currency": "CNY"
+  },
+  "superchat": {
+    "starts_at": "2026-11-07T10:00:00+08:00",
+    "ends_at": "2026-11-07T10:01:00+08:00"
+  },
+  "sequence": 1,
+  "data_generation": "profile-generation-01"
+}

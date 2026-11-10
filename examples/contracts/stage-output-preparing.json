@@ -1,0 +1,20 @@
+{
+  "data_generation": "profile-generation-01",
+  "output_id": "output-example",
+  "project_id": "stage-example",
+  "applied_revision": null,
+  "connection_id": "obs-example",
+  "connection_generation": 2,
+  "target": {
+    "scene_id": "scene-example",
+    "identity_kind": "uuid"
+  },
+  "state_sequence": 1,
+  "lifecycle_state": "preparing",
+  "ready": false,
+  "painted": false,
+  "output_url": "https://stage.example.test/output/output-example?token=synthetic-token",
+  "profile_id": "profile-example",
+  "target_id": "obs-target-example",
+  "output_slot_id": "slot-stage-example-obs-scene"
+}

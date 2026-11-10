@@ -1,0 +1,6 @@
+{
+  "project_id": "stage-example",
+  "expected_revision": 7,
+  "preview_id": "preview-example-007",
+  "idempotency_key": "apply-example-007"
+}

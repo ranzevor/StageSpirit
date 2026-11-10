@@ -1,0 +1,21 @@
+{
+  "format_version": 1,
+  "profile_id": "main",
+  "sections": [
+    {
+      "section": "connections",
+      "scope_id": "speech-main",
+      "revision": 3,
+      "values": {
+        "provider": "openai_compatible",
+        "base_url": "http://127.0.0.1:3900/v1",
+        "model": "tts-1",
+        "voice_id": "default",
+        "timeout_seconds": 120,
+        "service": "speech"
+      },
+      "credential_refs": {}
+    }
+  ],
+  "profile_revision": 4
+}

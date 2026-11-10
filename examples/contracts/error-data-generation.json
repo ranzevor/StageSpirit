@@ -1,0 +1,9 @@
+{
+  "code": "DATA_GENERATION_CHANGED",
+  "message": "The requested data generation has been replaced",
+  "retryable": false,
+  "context": {
+    "current_data_generation": "profile-generation-01"
+  },
+  "action": "Read the current data generation and reconcile saved state before creating a new logical operation"
+}

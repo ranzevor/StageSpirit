@@ -1,0 +1,7 @@
+{
+  "text": "真的成功了！[laughter] 咱们接着聊。",
+  "text_mode": "spoken",
+  "priority": 5,
+  "interrupt_current": false,
+  "idempotency_key": "speech-example-001"
+}

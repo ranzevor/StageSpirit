@@ -1,0 +1,24 @@
+{
+  "preview_id": "preview-example-007",
+  "project_id": "stage-example",
+  "revision": 7,
+  "connection_id": "obs-example",
+  "connection_generation": 2,
+  "target": {
+    "scene_id": "scene-example",
+    "identity_kind": "uuid"
+  },
+  "plan_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "plan_resource_id": "plan-example-007",
+  "expires_at": "2026-11-09T12:05:00+08:00",
+  "changes_summary": {
+    "create": 2,
+    "update": 1,
+    "bind": 1,
+    "remove": 0
+  },
+  "data_generation": "profile-generation-01",
+  "profile_id": "profile-example",
+  "target_id": "obs-target-example",
+  "output_slot_id": "slot-stage-example-obs-scene"
+}

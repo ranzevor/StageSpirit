@@ -1,0 +1,16 @@
+{
+  "data_generation": "profile-generation-01",
+  "output_id": "output-example",
+  "project_id": "stage-example",
+  "applied_revision": 7,
+  "connection_id": "obs-example",
+  "connection_generation": 2,
+  "target": {
+    "scene_id": "scene-example",
+    "identity_kind": "uuid"
+  },
+  "operation_id": "apply-example-007",
+  "profile_id": "profile-example",
+  "output_slot_id": "slot-stage-example-obs-scene",
+  "replaces_output_id": "output-previous-project"
+}

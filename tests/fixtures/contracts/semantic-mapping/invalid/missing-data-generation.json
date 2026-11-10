@@ -1,0 +1,31 @@
+{
+  "model_id": "model-example",
+  "expected_revision": 2,
+  "mode": "merge",
+  "enabled": true,
+  "recognition_instructions": "命中惊喜短语时使用轻微的头部动作。",
+  "mappings": [
+    {
+      "mapping_id": "surprise",
+      "label": "惊喜",
+      "keywords": [
+        "太好了",
+        "真惊喜"
+      ],
+      "match_mode": "literal",
+      "parameters": [
+        {
+          "input_name": "FaceAngleX",
+          "value": 8
+        }
+      ],
+      "transition_ms": 180,
+      "hold_ms": 600,
+      "excluded_keywords": [
+        "可不是太好了",
+        "哪有什么惊喜"
+      ],
+      "priority": 50
+    }
+  ]
+}

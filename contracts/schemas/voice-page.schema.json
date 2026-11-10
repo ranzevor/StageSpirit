@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "音色分页与目录状态",
+  "allOf": [
+    {
+      "$ref": "common.schema.json#/$defs/Page"
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VoiceSummary"
+      }
+    },
+    "metadata": {
+      "$ref": "#/$defs/Directory"
+    }
+  },
+  "required": [
+    "metadata"
+  ],
+  "$defs": {
+    "VoiceSummary": {
+      "type": "object",
+      "properties": {
+        "voice_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "source": {
+          "enum": [
+            "discovered",
+            "static",
+            "manual",
+            "configured"
+          ]
+        }
+      },
+      "required": [
+        "voice_id",
+        "name",
+        "provider_id",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Directory": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "ready",
+            "unsupported",
+            "failed"
+          ]
+        },
+        "source": {
+          "enum": [
+            "discovered",
+            "static",
+            "manual",
+            "configured",
+            "mixed"
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "fetched_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "error": {
+          "$ref": "common.schema.json#/$defs/Error"
+        }
+      },
+      "required": [
+        "state",
+        "source",
+        "complete"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "required": [
+              "error"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "configured"
+              }
+            },
+            "required": [
+              "source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "complete": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
