@@ -4,9 +4,11 @@
 
 # StageSpirit 灵幕
 
-[![状态 开发中](https://img.shields.io/badge/status-development-blue)](docs/development/delivery.md)
-[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](docs/development/compatibility.md)
-[![Apache License 2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![Version 0.1.0.dev0](https://img.shields.io/badge/Version-0.1.0.dev0-blue)](docs/development/compatibility.md#版本规则) [![Status development](https://img.shields.io/badge/Status-development-blue)](docs/development/delivery.md#当前交付) [![CI main](https://img.shields.io/github/actions/workflow/status/ranzevor/StageSpirit/ci.yml?branch=main&label=CI)](https://github.com/ranzevor/StageSpirit/actions/workflows/ci.yml?query=branch%3Amain) [![License Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-green)](LICENSE)
+
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](docs/development/compatibility.md#当前支持范围) [![Platform Windows x64](https://img.shields.io/badge/Platform-Windows%20x64-0078D4)](docs/development/compatibility.md#当前支持范围) [![MCP 2025-11-25](https://img.shields.io/badge/MCP-2025--11--25-5A45FF)](docs/reference/mcp.md#连接与发现) [![Transport stdio](https://img.shields.io/badge/Transport-stdio-5A45FF)](docs/reference/mcp.md#连接与发现)
+
+[![Distribution wheel + sdist](https://img.shields.io/badge/Distribution-wheel%20%2B%20sdist-6E59A5)](docs/development/releasing.md#构建与安装) [![Documents Markdown](https://img.shields.io/badge/Documents-Markdown-000000)](docs/README.md) [![Contracts JSON Schema](https://img.shields.io/badge/Contracts-JSON%20Schema-blue)](contracts/README.md) [![Standards 0.2.0](https://img.shields.io/badge/Standards-0.2.0-6E59A5)](docs/standards/README.md)
 
 让声音、表情和直播画面共同参与表达。
 

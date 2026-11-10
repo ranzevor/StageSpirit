@@ -1,12 +1,54 @@
 "use strict";
 
 const fs = require("node:fs");
-const { titleErrors, commitErrors } = require("./commit_message.cjs");
+const { titleErrors, commitErrors, visibleStructure, isPlaceholderLine } = require("./commit_message.cjs");
+const commonmark = require("./vendor/commonmark-0.29.2.min.cjs");
+
+function pullRequestBodyErrors(body) {
+    if (typeof body !== "string" || !body.trim()) return ["PR 正文为空"];
+    const lines = body.replace(/\r\n/g, "\n").split("\n");
+    const sections = [];
+    const walker = new commonmark.Parser().parse(body).walker();
+    let event;
+    while ((event = walker.next())) {
+        if (event.entering && event.node.type === "heading" && event.node.level === 2) {
+            sections.push({
+                name: visibleStructure(lines[event.node.sourcepos[0][0] - 1]).lines.join("").trim(),
+                start: event.node.sourcepos[1][0],
+            });
+        }
+    }
+    const required = [
+        ["变更内容", "变更目的", "变更说明"],
+        ["验证结果", "验证", "测试"],
+        ["兼容与恢复", "兼容影响", "接口影响"],
+    ];
+    const errors = [];
+    for (const aliases of required) {
+        const matching = sections.map((section, index) => ({ section, index }))
+            .filter(({ section }) => aliases.includes(section.name));
+        if (matching.length !== 1) {
+            errors.push(`PR 正文需要一个${aliases[0]}章节`);
+            continue;
+        }
+        const { section, index } = matching[0];
+        const end = (sections[index + 1]?.start ?? lines.length + 1) - 1;
+        const content = visibleStructure(lines.slice(section.start, end).join("\n"), false);
+        const text = content.placeholderLines.join("\n").trim();
+        if (!text || content.placeholderLines.some(isPlaceholderLine)) {
+            errors.push(`PR ${aliases[0]}章节缺少有效正文`);
+        } else if (!/\p{Script=Han}/u.test(text)) {
+            errors.push(`PR ${aliases[0]}章节需要中文说明`);
+        }
+    }
+    return errors;
+}
 
 function validatePullRequest(pullRequest, commits) {
     const errors = titleErrors(pullRequest.title).map(
         (error) => `PR 标题：${error}`,
     );
+    errors.push(...pullRequestBodyErrors(pullRequest.body));
     if (commits.length !== pullRequest.commits || !commits.length) {
         errors.push("PR 提交列表不完整");
     }
@@ -71,14 +113,15 @@ async function checkPullRequest(
     if (
         latest.head.sha !== current.head.sha ||
         latest.base.sha !== current.base.sha ||
-        latest.title !== current.title
+        latest.title !== current.title ||
+        latest.body !== current.body
     ) {
         throw new Error("PR 在校验期间发生变化，需要重新检查");
     }
     return validatePullRequest(latest, commits);
 }
 
-module.exports = { checkPullRequest, validatePullRequest };
+module.exports = { checkPullRequest, validatePullRequest, pullRequestBodyErrors };
 
 if (require.main === module) {
     Promise.resolve()

@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { test } = require("node:test");
-const { checkDocuments } = require("../../scripts/check_docs.cjs");
+const { checkDocuments, parseDocument, shieldsUrl, validateReadmeBadges, projectReadmeErrors } = require("../../scripts/check_docs.cjs");
 
 function fixture(t, extra = "") {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "stagespirit-docs-"));
@@ -70,4 +70,80 @@ test("rejects invalid UTF-8 and skips generated directories", (t) => {
     const result = checkDocuments(root);
     assert.equal(result.errors.length, 1);
     assert.ok(result.errors[0].startsWith("broken.md:"));
+});
+
+
+const badgeRequirements = [
+    { label: "Version", message: "1.2.3", target: "version.md" },
+    { label: "License", message: "Apache-2.0", target: "LICENSE" },
+    { label: "CI", message: "main", workflow: "test/project/ci.yml", target: "https://github.com/test/project/actions/workflows/ci.yml" },
+];
+
+function badgeLinks() {
+    return [
+        { image: true, destination: "https://img.shields.io/badge/Version-1.2.3-blue", label: "Version 1.2.3", target: "version.md" },
+        { image: true, destination: "https://img.shields.io/badge/License-Apache--2.0-green", label: "License Apache-2.0", target: "LICENSE" },
+        { image: true, destination: "https://img.shields.io/github/actions/workflow/status/test/project/ci.yml?branch=main&label=CI", label: "CI main", target: "https://github.com/test/project/actions/workflows/ci.yml" },
+    ];
+}
+
+test("accepts official badges with escaped text and matching destinations", () => {
+    assert.equal(shieldsUrl("Title", "A-B_C + D", "blue"), "https://img.shields.io/badge/Title-A--B__C%20%2B%20D-blue");
+    assert.deepEqual(validateReadmeBadges(badgeLinks(), badgeRequirements), []);
+    const links = badgeLinks();
+    links[0].target = "./version.md";
+    assert.deepEqual(validateReadmeBadges(links, badgeRequirements), []);
+});
+
+for (const [name, change, expected] of [
+    ["missing category", (links) => links.splice(0, 1), "须存在且唯一"],
+    ["duplicate category", (links) => links.push({ ...links[0] }), "须存在且唯一"],
+    ["stale version", (links) => { links[0].destination = "https://img.shields.io/badge/Version-1.2.2-blue"; }, "值与项目来源不一致"],
+    ["incorrect alt", (links) => { links[0].label = "Version 9.9.9"; }, "替代文字"],
+    ["wrong target", (links) => { links[0].target = "LICENSE"; }, "对应说明"],
+    ["unofficial host", (links) => { links[0].destination = "https://example.test/badge/Version-1.2.3-blue"; }, "官方 HTTPS"],
+    ["query override", (links) => { links[0].destination += "?message=9.9.9"; }, "值与项目来源不一致"],
+    ["wrong workflow", (links) => { links[2].destination = links[2].destination.replace("ci.yml", "fake.yml"); }, "仓库、工作流或分支"],
+    ["wrong branch", (links) => { links[2].destination = links[2].destination.replace("branch=main", "branch=other"); }, "仓库、工作流或分支"],
+]) {
+    test(`rejects badge ${name}`, () => {
+        const links = badgeLinks();
+        change(links);
+        assert.ok(validateReadmeBadges(links, badgeRequirements).some((error) => error.includes(expected)));
+    });
+}
+
+test("extracts the same badge association from reference Markdown and HTML", (t) => {
+    const root = fixture(t);
+    const markdown = '[![Version 1.2.3][image]][target]\n\n[image]: https://img.shields.io/badge/Version-1.2.3-blue\n[target]: version.md\n';
+    const file = path.join(root, "badges.md");
+    fs.writeFileSync(file, markdown);
+    assert.deepEqual(validateReadmeBadges(parseDocument(file).links, [badgeRequirements[0]]), []);
+    fs.writeFileSync(file, '<a href="version.md"><img src="https://img.shields.io/badge/Version-1.2.3-blue" alt="Version 1.2.3"></a>');
+    assert.deepEqual(validateReadmeBadges(parseDocument(file).links, [badgeRequirements[0]]), []);
+});
+
+test("binds badge and document versions to the program source", (t) => {
+    const root = fixture(t);
+    const sourceRoot = path.resolve(__dirname, "../..");
+    const files = ["README.md", "src/stagespirit_mcp/__init__.py", ".python-version", "pyproject.toml", "docs/reference/mcp.md", "docs/standards/README.md", "docs/development/compatibility.md", "docs/guides/quickstart.md", ".github/workflows/ci.yml"];
+    for (const file of files) {
+        fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+        fs.copyFileSync(path.join(sourceRoot, file), path.join(root, file));
+    }
+    assert.deepEqual(projectReadmeErrors(root), []);
+    fs.appendFileSync(path.join(root, "src/stagespirit_mcp/__init__.py"), "\n");
+    assert.deepEqual(projectReadmeErrors(root), []);
+    const original = fs.readFileSync(path.join(root, "src/stagespirit_mcp/__init__.py"), "utf8");
+    fs.writeFileSync(path.join(root, "src/stagespirit_mcp/__init__.py"), original.replace(/__version__ = "[^"]+"/, '__version__ = "9.8.7"'));
+    const errors = projectReadmeErrors(root).join("\n");
+    assert.ok(errors.includes("Version 徽章的值与项目来源不一致"));
+    assert.ok(errors.includes("README.md: 文档版本与程序版本不同"));
+    assert.ok(errors.includes("compatibility.md: 文档版本与程序版本不同"));
+    assert.ok(errors.includes("quickstart.md: 文档版本与程序版本不同"));
+    fs.writeFileSync(path.join(root, "src/stagespirit_mcp/__init__.py"), original);
+    const manifestPath = path.join(root, "pyproject.toml");
+    const manifest = fs.readFileSync(manifestPath, "utf8");
+    fs.writeFileSync(manifestPath, manifest.replace("Development Status :: 2 - Pre-Alpha", "Development Status :: 5 - Production/Stable"));
+    assert.ok(projectReadmeErrors(root).some((error) => error.includes("Status 徽章的值与项目来源不一致")));
 });

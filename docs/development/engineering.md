@@ -23,7 +23,7 @@ node scripts/check_docs.cjs
 
 安装测试构建 wheel 与 sdist，从独立源包重建 wheel，在临时虚拟环境安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。CI 在 PR 和 main 推送时执行运行、契约、安装与文档检查。
 
-文档检查使用 CommonMark 解析内联、引用式及 HTML 图片链接，检查本地目标、章节、UTF-8、JSON 代码块和品牌资源。外链校验覆盖地址结构，实际目标与状态另行核对。共享契约检查自动读取全部 Schema、正例和反例，跨字段业务规则按验收场景验证。
+文档检查使用 CommonMark 解析内联、引用式及 HTML 图片链接，检查本地目标、章节、UTF-8、JSON 代码块和品牌资源。首页徽章还检查完整类别、官方地址、显示值、替代文字和目标，版本、Python、许可、协议及规范版本与各自来源比较。外链校验覆盖地址结构，实际目标与状态另行核对。共享契约检查自动读取全部 Schema、正例和反例，跨字段业务规则按验收场景验证。
 
 ## 提交与合并检查
 
@@ -49,7 +49,7 @@ node .github/scripts/commit_message.cjs message-file <消息文件>
 
 通过校验的同一标题和正文分别作为 Squash 合并的 `commit_title` 和 `commit_message`，并用已审查的 PR HEAD 作为 `sha`。修改消息后重新校验。
 
-`commit-message-tests` 检查新增校验逻辑。`governance-metadata` 从 PR 目标分支加载校验器，分页读取当前 PR 的实际提交，检查标题和提交消息。该检查已纳入主分支必需检查。新增检查首次通过后，将其稳定名称配置为主分支必需检查。
+`commit-message-tests` 检查新增校验逻辑。`governance-metadata` 从 PR 目标分支加载校验器，分页读取当前 PR 的实际提交，检查标题、PR 正文的变更、验证和兼容章节，以及提交消息。该检查已纳入主分支必需检查。新增检查首次通过后，将其稳定名称配置为主分支必需检查。
 
 [提交消息规则](../../CONTRIBUTING.md#提交消息与-pr-标题) · [代码来源与许可](../../.github/scripts/NOTICE.md)
 

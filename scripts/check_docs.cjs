@@ -45,6 +45,7 @@ function parseDocument(file) {
     const headings = new Map();
     const links = [];
     const errors = [];
+    const htmlAnchors = [];
     const walker = tree.walker();
     let event;
     while ((event = walker.next())) {
@@ -57,19 +58,39 @@ function parseDocument(file) {
             anchors.add(count ? `${base}-${count}` : base);
         }
         if (["link", "image"].includes(node.type)) {
-            links.push({ destination: node.destination, image: node.type === "image" });
+            links.push({
+                destination: node.destination,
+                image: node.type === "image",
+                label: nodeText(node),
+                target: node.parent?.type === "link" ? node.parent.destination : null,
+            });
             if (!nodeText(node).trim()) errors.push("链接或图片缺少可理解的文字");
         }
         if (["html_inline", "html_block"].includes(node.type)) {
             for (const match of node.literal.matchAll(/\b(?:id|name)=["']([^"']+)["']/g)) {
                 anchors.add(match[1]);
             }
-            for (const match of node.literal.matchAll(/<(a|img)\b[^>]*>/gi)) {
-                const attribute = match[1].toLowerCase() === "img" ? "src" : "href";
-                const destination = match[0].match(new RegExp(`\\b${attribute}=["']([^"']+)["']`, "i"));
-                if (destination) links.push({ destination: destination[1], image: attribute === "src" });
-                if (attribute === "src" && !/\balt=["'][^"']+["']/i.test(match[0])) {
-                    errors.push("HTML 图片缺少替代文字");
+            for (const match of node.literal.matchAll(/<(\/?)(a|img)\b([^>]*)>/gi)) {
+                const attributes = {};
+                for (const attribute of match[3].matchAll(/([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) {
+                    attributes[attribute[1].toLowerCase()] = (attribute[2] ?? attribute[3] ?? attribute[4]).replace(/&amp;/g, "&");
+                }
+                if (match[2].toLowerCase() === "a") {
+                    if (match[1]) htmlAnchors.pop();
+                    else {
+                        htmlAnchors.push(attributes.href || null);
+                        if (attributes.href) links.push({ destination: attributes.href, image: false });
+                    }
+                } else if (!match[1] && attributes.src) {
+                    const decorative = attributes["aria-hidden"] === "true" || attributes.role === "presentation";
+                    links.push({
+                        destination: attributes.src,
+                        image: true,
+                        label: attributes.alt || "",
+                        target: htmlAnchors.at(-1) || null,
+                        decorative,
+                    });
+                    if (!attributes.alt && !decorative) errors.push("HTML 图片缺少替代文字");
                 }
             }
         }
@@ -147,8 +168,117 @@ function checkDocuments(directory) {
     return { files: documents.size, errors };
 }
 
+function shieldsUrl(label, message, color) {
+    const encode = (value) => encodeURIComponent(value.replace(/-/g, "--").replace(/_/g, "__"));
+    return `https://img.shields.io/badge/${encode(label)}-${encode(message)}-${color}`;
+}
+
+function targetKey(target) {
+    if (!target) return null;
+    if (/^https?:/i.test(target)) return new URL(target).href;
+    const [file, fragment] = decodeURIComponent(target).split("#", 2);
+    return path.posix.normalize(file) + (fragment ? `#${fragment}` : "");
+}
+
+function validateReadmeBadges(links, requirements) {
+    const errors = [];
+    const images = links.filter((link) => link.image);
+    for (const requirement of requirements) {
+        const { label, message, target, workflow } = requirement;
+        const candidates = images.filter((image) => {
+            try {
+                const url = new URL(image.destination);
+                return workflow
+                    ? url.pathname.startsWith("/github/actions/workflow/status/") && url.searchParams.get("label") === label
+                    : decodeURIComponent(url.pathname).startsWith(`/badge/${label}-`);
+            } catch {
+                return false;
+            }
+        });
+        if (candidates.length !== 1) {
+            errors.push(`README.md: ${label} 徽章须存在且唯一`);
+            continue;
+        }
+        const badge = candidates[0];
+        const url = new URL(badge.destination);
+        if (url.origin !== "https://img.shields.io" || url.username || url.password) {
+            errors.push(`README.md: ${label} 徽章须使用 Shields.io 官方 HTTPS 地址`);
+        }
+        if (workflow) {
+            if (url.pathname !== `/github/actions/workflow/status/${workflow}` || url.searchParams.get("branch") !== message) {
+                errors.push(`README.md: ${label} 徽章的仓库、工作流或分支不匹配`);
+            }
+        } else {
+            const color = url.pathname.split("-").at(-1);
+            if (!/^(?:[a-z]+|[a-f0-9]{6})$/i.test(color) ||
+                decodeURIComponent(url.pathname) !== decodeURIComponent(new URL(shieldsUrl(label, message, color)).pathname) ||
+                ["label", "message", "color"].some((key) => url.searchParams.has(key))) {
+                errors.push(`README.md: ${label} 徽章的值与项目来源不一致或编码无效`);
+            }
+        }
+        if (badge.label !== `${label} ${message}` || badge.decorative) {
+            errors.push(`README.md: ${label} 徽章替代文字与显示含义不一致`);
+        }
+        if (targetKey(badge.target) !== targetKey(target)) {
+            errors.push(`README.md: ${label} 徽章未链接到对应说明`);
+        }
+    }
+    return errors;
+}
+
+function projectReadmeErrors(root) {
+    const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+    const capture = (file, expression) => {
+        const match = expression.exec(read(file));
+        if (!match) throw new Error(`${file} 缺少可识别的版本或协议声明`);
+        return match[1];
+    };
+    try {
+        const version = capture("src/stagespirit_mcp/__init__.py", /^__version__\s*=\s*["']([^"']+)["']/m);
+        const python = read(".python-version").trim().split(".").slice(0, 2).join(".");
+        const developmentStatus = capture("pyproject.toml", /Development Status :: ([1-7]) -/);
+        const maturity = { 1: "planning", 2: "development", 3: "alpha", 4: "beta", 5: "stable", 6: "mature", 7: "inactive" }[developmentStatus];
+        const license = capture("pyproject.toml", /^license\s*=\s*["']([^"']+)["']/m);
+        const protocol = capture("docs/reference/mcp.md", /互通基线为 MCP `([^`]+)`/);
+        const standards = capture("docs/standards/README.md", /采用集合为 \*\*([^*]+)\*\*/);
+        const platform = capture("docs/development/compatibility.md", /^\| 操作系统 \| ([^|]+) \|$/m).trim();
+        const requirements = [
+            { label: "Version", message: version, target: "docs/development/compatibility.md#版本规则" },
+            { label: "Status", message: maturity, target: "docs/development/delivery.md#当前交付" },
+            {
+                label: "CI", message: "main", workflow: "ranzevor/StageSpirit/ci.yml",
+                target: "https://github.com/ranzevor/StageSpirit/actions/workflows/ci.yml?query=branch%3Amain",
+            },
+            { label: "License", message: license, target: "LICENSE" },
+            { label: "Python", message: python, target: "docs/development/compatibility.md#当前支持范围" },
+            { label: "Platform", message: platform, target: "docs/development/compatibility.md#当前支持范围" },
+            { label: "MCP", message: protocol, target: "docs/reference/mcp.md#连接与发现" },
+            { label: "Transport", message: "stdio", target: "docs/reference/mcp.md#连接与发现" },
+            { label: "Distribution", message: "wheel + sdist", target: "docs/development/releasing.md#构建与安装" },
+            { label: "Documents", message: "Markdown", target: "docs/README.md" },
+            { label: "Contracts", message: "JSON Schema", target: "contracts/README.md" },
+            { label: "Standards", message: standards, target: "docs/standards/README.md" },
+        ];
+        const document = parseDocument(path.join(root, "README.md"));
+        const errors = validateReadmeBadges(document.links, requirements);
+        const versionBindings = [
+            ["README.md", /当前开发版本为 `([^`]+)`/],
+            ["docs/development/compatibility.md", /\| StageSpirit \| `([^`]+)`/],
+            ["docs/guides/quickstart.md", /版本命令应输出 `StageSpirit ([^`]+)`/],
+        ];
+        for (const [file, expression] of versionBindings) {
+            if (capture(file, expression) !== version) errors.push(`${file}: 文档版本与程序版本不同`);
+        }
+        read(".github/workflows/ci.yml");
+        return errors;
+    } catch (error) {
+        return [error.message];
+    }
+}
+
 if (require.main === module) {
     const result = checkDocuments(path.resolve(__dirname, ".."));
+    result.errors.push(...projectReadmeErrors(path.resolve(__dirname, "..")));
     for (const error of result.errors) console.error(error);
     if (result.errors.length) {
         process.exitCode = 1;
@@ -157,4 +287,4 @@ if (require.main === module) {
     }
 }
 
-module.exports = { checkDocuments };
+module.exports = { checkDocuments, parseDocument, shieldsUrl, validateReadmeBadges, projectReadmeErrors };

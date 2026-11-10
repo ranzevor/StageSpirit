@@ -67,7 +67,7 @@
 | 网络与实时媒体 | STD-L4-NETWORK-001—004 | [语音](../design/speech.md)、[形象](../design/avatar-performance.md)、[运行时预算](../design/runtime.md)，D2—D5 |
 | 本地 Web、渲染与交互 | STD-L4-WEB-001—009、011，STD-L5-006 的浏览器与 TypeScript 条款 | [展台](../design/stage-obs.md)、[安全](../design/security.md)、[性能](../testing/performance.md)，D5 |
 
-各规范内的适用要求落实到对应设计与 ACC 场景。提供方、浏览器、VTS、OBS 的具体版本、权限和性能观察在该模块实施时固定，与首版功能范围一同验收。
+各阶段把适用条款落实到具体实现、设计和 ACC 场景，按输入、观察结果与恢复行为验收。提供方、浏览器、VTS、OBS 的具体版本、权限和性能观察在该模块实施时固定，与首版功能范围一同验收。
 
 ## 检查与变更
 
