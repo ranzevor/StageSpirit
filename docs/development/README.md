@@ -7,6 +7,8 @@
 | 提出问题、提交与审阅贡献 | [贡献指南](../../CONTRIBUTING.md) |
 | 放置源码、契约、示例及各类文档 | [仓库结构与文档维护](repository.md) |
 | 建立环境、模块接入和安装制品 | [工程约定](engineering.md) |
+| 确认版本、支持范围与数据兼容 | [版本与兼容](compatibility.md) |
+| 准备、构建和发布版本 | [发行流程](releasing.md) |
 | 按使用链路安排实现与验收 | [实施与交付计划](delivery.md) |
 
 [需求规格](../requirements/README.md) · [架构设计](../architecture/README.md) · [测试设计](../testing/README.md)

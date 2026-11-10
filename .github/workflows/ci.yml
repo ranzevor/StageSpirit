@@ -2,6 +2,8 @@ name: Python checks
 
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -18,6 +20,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           version: "0.8.2"
@@ -25,12 +29,28 @@ jobs:
       - name: Install locked environment
         run: uv sync --frozen
       - name: Lint
-        run: uv run --frozen ruff check src scripts tests
+        run: uv run --frozen ruff check src scripts tests examples
       - name: Format
-        run: uv run --frozen ruff format --check src scripts tests
+        run: uv run --frozen ruff format --check src scripts tests examples
       - name: Types
         run: uv run --frozen pyright
       - name: Runtime contract
         run: uv run --frozen python scripts/export_contracts.py --check
       - name: Runtime and installed wheel
         run: uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e
+
+  documentation:
+    name: documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22.15.0"
+      - name: Test documentation checker
+        run: node --test tests/governance/check_docs.test.cjs
+      - name: Check documentation and JSON examples
+        run: node scripts/check_docs.cjs

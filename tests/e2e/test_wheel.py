@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tarfile
 import zipfile
 from pathlib import Path
 
@@ -33,8 +34,38 @@ def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Pat
         )
         assert result.returncode == 0, result.stdout + result.stderr
 
-    run("build", "--wheel", "--no-build-isolation", "--out-dir", str(workdir / "dist"))
+    run("build", "--no-build-isolation", "--out-dir", str(workdir / "dist"))
     (wheel,) = (workdir / "dist").glob("*.whl")
+    (sdist,) = (workdir / "dist").glob("*.tar.gz")
+    source = workdir / "source"
+    with tarfile.open(sdist) as archive:
+        archive.extractall(source, filter="data")
+    (source_root,) = source.iterdir()
+    for relative in (
+        "docs/assets/stagespirit.svg",
+        ".github/scripts/vendor/CommonMark-LICENSE.txt",
+        ".github/scripts/NOTICE.md",
+        "scripts/check_docs.cjs",
+        "examples/mcp/runtime_status.py",
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        "uv.lock",
+    ):
+        assert (source_root / relative).read_bytes() == (ROOT / relative).read_bytes()
+    run(
+        "build",
+        "--wheel",
+        "--no-build-isolation",
+        "--out-dir",
+        str(workdir / "rebuilt"),
+        cwd=source_root,
+    )
+    (rebuilt_wheel,) = (workdir / "rebuilt").glob("*.whl")
+    with zipfile.ZipFile(wheel) as original, zipfile.ZipFile(rebuilt_wheel) as rebuilt:
+        assert sorted(original.namelist()) == sorted(rebuilt.namelist())
+        for name in original.namelist():
+            assert original.read(name) == rebuilt.read(name), name
     requirements = workdir / "requirements.txt"
     run(
         "export",

@@ -4,8 +4,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from stagespirit_mcp import __version__
-from stagespirit_mcp.bootstrap.application import open_runtime
-from stagespirit_mcp.entrypoints.mcp import create_server
 from stagespirit_mcp.infrastructure.standard_streams import configure_standard_streams
 from stagespirit_mcp.runtime.errors import StartupError
 
@@ -22,6 +20,9 @@ def main(arguments: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(arguments)
     try:
+        from stagespirit_mcp.bootstrap.application import open_runtime
+        from stagespirit_mcp.entrypoints.mcp import create_server
+
         with open_runtime(args.profile, args.data_dir) as runtime:
             create_server(runtime).run(transport="stdio")
     except (StartupError, OSError) as error:

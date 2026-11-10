@@ -4,7 +4,7 @@
 
 项目按交付阶段实施，当前提供 D1 首批运行基础。贡献围绕功能实现、产品范围、需求、架构与设计、接口契约、示例和测试展开。
 
-[项目首页](README.md) · [实施计划](docs/development/delivery.md) · [工程约定](docs/development/engineering.md)
+[项目首页](README.md) · [实施计划](docs/development/delivery.md) · [工程约定](docs/development/engineering.md) · [工程规范采用](docs/standards/README.md)
 
 ## 提出问题与讨论设计
 

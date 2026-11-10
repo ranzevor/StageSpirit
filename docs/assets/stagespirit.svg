@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title description">
+  <title id="title">StageSpirit 灵幕</title>
+  <desc id="description">紫色圆角舞台内，两束聚光照向中央星光与弧形幕布。</desc>
+  <defs>
+    <linearGradient id="stage" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#33265f"/>
+      <stop offset="1" stop-color="#151d36"/>
+    </linearGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#cab9ff" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#cab9ff" stop-opacity=".05"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="152" height="152" rx="36" fill="url(#stage)"/>
+  <path d="M32 30 110 120H58Z M128 30 50 120h52Z" fill="url(#light)"/>
+  <path d="M31 117V61a49 49 0 0 1 98 0v56" fill="none" stroke="#c4b5fd" stroke-width="6" stroke-linecap="round"/>
+  <path d="m80 53 8 20 21 8-21 8-8 21-8-21-21-8 21-8Z" fill="#f6f2ff"/>
+  <path d="M39 128h82" stroke="#c4b5fd" stroke-width="6" stroke-linecap="round"/>
+  <path d="M52 140h56" stroke="#8dd7e9" stroke-width="4" stroke-linecap="round"/>
+</svg>
