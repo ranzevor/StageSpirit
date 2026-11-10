@@ -36,4 +36,4 @@
 
 [REQ-MCP-001](../requirements/README.md#req-mcp-001) · [REQ-MCP-002](../requirements/README.md#req-mcp-002) · [ACC-MCP-001](../testing/acceptance.md#acc-mcp-001) · [ACC-MCP-002](../testing/acceptance.md#acc-mcp-002) · [ACC-MCP-003](../testing/acceptance.md#acc-mcp-003)
 
-[MCP 接口参考](../reference/mcp.md)
+[MCP 契约设计](../design/mcp-contract.md)

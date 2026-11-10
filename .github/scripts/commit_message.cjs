@@ -378,7 +378,7 @@ function commitErrors(message) {
     return errors;
 }
 
-function visibleStructure(body) {
+function visibleStructure(body, includeHeadings = true) {
     const root = parseBodyMarkdown(body);
     const rawLines = body.replace(/\r\n/gu, "\n").split("\n");
     const lines = [];
@@ -388,8 +388,8 @@ function visibleStructure(body) {
     while ((event = walker.next())) {
         if (!event.entering) continue;
         const node = event.node;
-        if (!["paragraph", "heading", "html_block"].includes(node.type))
-            continue;
+        if (!["paragraph", "html_block"].includes(node.type) &&
+            !(includeHeadings && node.type === "heading")) continue;
         const visible = visibleBlockLines(node, rawLines);
         lines.push(...visible.lines);
         placeholderLines.push(...visible.placeholderLines);
@@ -397,7 +397,7 @@ function visibleStructure(body) {
     return { lines, placeholderLines };
 }
 
-module.exports = { titleErrors, commitErrors };
+module.exports = { titleErrors, commitErrors, visibleStructure, isPlaceholderLine };
 
 if (require.main === module) {
     try {

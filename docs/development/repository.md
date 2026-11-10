@@ -7,18 +7,20 @@
 | 位置 | 职责与维护来源 |
 | --- | --- |
 | src/stagespirit_mcp/ | 后端源码及接入层 |
-| web/stage/ | 展台前端源码 |
+| web/stage/ | D5 展台前端的目标位置，随前端实现建立 |
 | docs/product/ | 产品目标、使用场景、范围和独立身份 |
 | docs/requirements/ | 首版需求规格、责任与预期结果 |
 | docs/architecture/ | 模块关系、状态所有权及跨模块接口设计 |
-| docs/design/ | 各专题的流程、状态、失败及恢复设计 |
-| docs/reference/ | MCP 协议行为、接口参考与中英文术语 |
+| docs/design/ | 首版契约、工作流及各专题的状态与恢复设计 |
+| docs/reference/ | 当前已实现的 MCP 接口与中英文术语 |
 | docs/adr/ | 架构选择、理由、代价和改选条件 |
-| docs/guides/ | 面向调用者的任务步骤及异常处理 |
+| docs/guides/ | 当前版本的安装、调用及错误处理 |
 | docs/development/ | 开发约定、目录职责与实施计划 |
 | docs/testing/ | 测试方法与具体验收场景 |
-| docs/standards/ | 引用的规范身份及相关条款参考 |
+| docs/standards/ | 采用的规范身份、适用范围和检查入口 |
 | contracts/ | 共享 Schema 和工具边界设计的维护源 |
+| docs/assets/ | 文档使用的品牌图标 |
+| examples/mcp/ | 可运行的 MCP 客户端示例 |
 | examples/contracts/ | 人工维护的接口正例 |
 | tests/fixtures/contracts/ | 按 Schema 分类的测试反例 |
 | scripts/ | 实际需要的开发维护脚本 |

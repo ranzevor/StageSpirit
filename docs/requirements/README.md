@@ -278,7 +278,7 @@ model_id 是运行配置内唯一的模型身份，绑定 VTS connection_id 与 
 
 连接建立前可以发现提供方与配置要求，实际能力来自已安装适配器和目标连接。Schema、结构化通知、错误与取消在所选真实客户端中按契约互通。
 
-[MCP 接口参考](../reference/mcp.md) · [ACC-MCP-001](../testing/acceptance.md#acc-mcp-001)、[ACC-MCP-003](../testing/acceptance.md#acc-mcp-003)、[ACC-MCP-004](../testing/acceptance.md#acc-mcp-004)
+[MCP 契约设计](../design/mcp-contract.md) · [ACC-MCP-001](../testing/acceptance.md#acc-mcp-001)、[ACC-MCP-003](../testing/acceptance.md#acc-mcp-003)、[ACC-MCP-004](../testing/acceptance.md#acc-mcp-004)
 
 <a id="req-mcp-002"></a>
 
@@ -290,7 +290,7 @@ model_id 是运行配置内唯一的模型身份，绑定 VTS connection_id 与 
 
 业务列表默认 50 条、上限 200 条，游标绑定运行配置、数据代际、筛选、排序和快照。可变集合的列表快照固定成员、摘要和排序，后续状态修改或删除保持旧快照内容，详情返回对象当前值。快照受有效期和容量预算约束，过期返回 CURSOR_EXPIRED，非事件集合从首页建立新快照，事件在同一代际内按水位续读。大文件通过资源引用读取，协议目录与业务分页分别完成。
 
-[MCP 接口参考](../reference/mcp.md) · [ACC-MCP-002](../testing/acceptance.md#acc-mcp-002)、[ACC-MCP-003](../testing/acceptance.md#acc-mcp-003)、[ACC-MCP-004](../testing/acceptance.md#acc-mcp-004)
+[MCP 契约设计](../design/mcp-contract.md) · [ACC-MCP-002](../testing/acceptance.md#acc-mcp-002)、[ACC-MCP-003](../testing/acceptance.md#acc-mcp-003)、[ACC-MCP-004](../testing/acceptance.md#acc-mcp-004)
 
 <a id="req-sec-001"></a>
 

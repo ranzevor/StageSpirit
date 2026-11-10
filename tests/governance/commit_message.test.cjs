@@ -13,6 +13,7 @@ const {
 const {
     checkPullRequest,
     validatePullRequest,
+    pullRequestBodyErrors,
 } = require("../../.github/scripts/check_pr_metadata.cjs");
 
 const title = "feat(runtime): 建立独立标准输入输出运行入口";
@@ -72,8 +73,10 @@ test("message-file CLI checks UTF-8 files in paths containing spaces", (t) => {
     assert.match(invalid.stderr, /type\(scope\)/u);
 });
 
+const proposalBody = "## 变更内容\n\n增加运行配置的独立保存。\n\n## 验证结果\n\n运行配置恢复和冲突测试通过。\n\n## 兼容与恢复\n\n旧格式继续加载，恢复时使用原数据目录。";
 const pullRequest = {
     title,
+    body: proposalBody,
     commits: 102,
     head: { sha: "head-102" },
     base: { sha: "base-1" },
@@ -189,4 +192,30 @@ test("reject duplicated commit page records", () => {
             "PR 提交列表包含重复记录",
         ),
     );
+});
+
+
+for (const body of [
+    "",
+    "## 变更内容\n\n## 验证结果\n\n## 兼容与恢复",
+    "## 变更内容\n<!-- 增加独立运行入口 -->\n## 验证结果\n<!-- 全部通过 -->\n## 兼容与恢复\n<!-- 格式兼容 -->",
+    proposalBody.replace("运行配置恢复和冲突测试通过。", "```text\n运行配置恢复和冲突测试通过。\n```"),
+    proposalBody.replace("运行配置恢复和冲突测试通过。", "TODO"),
+    proposalBody.replace("## 验证结果", "## 其他内容"),
+    proposalBody.replace("运行配置恢复和冲突测试通过。", "### 测试结果"),
+    proposalBody.replace("运行配置恢复和冲突测试通过。", "All tests passed."),
+]) {
+    test(`reject incomplete PR body ${JSON.stringify(body)}`, () => {
+        assert.ok(pullRequestBodyErrors(body).length);
+    });
+}
+
+test("accepts substantive PR body and supported heading aliases", () => {
+    assert.deepEqual(pullRequestBodyErrors(proposalBody), []);
+    assert.deepEqual(pullRequestBodyErrors(proposalBody.replace("## 变更内容", "## 变更目的").replace("## 兼容与恢复", "## 接口影响")), []);
+});
+
+test("rejects PR body changes during validation", async () => {
+    const request = client([pullRequest, commits.slice(0, 100), commits.slice(100), { ...pullRequest, body: proposalBody + "\n修改说明。" }]);
+    await assert.rejects(checkPullRequest(event, { token: "synthetic-token", fetchImpl: request.fetchImpl }), /校验期间/u);
 });
