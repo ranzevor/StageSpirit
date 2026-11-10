@@ -20,7 +20,7 @@
 
 ```shell
 uv sync --frozen
-uv build --no-build-isolation
+uv build --sdist --wheel --no-build-isolation
 ```
 
 `dist/` 生成 wheel 和 sdist。检查包元数据、依赖、项目许可、README 本地图片和源包中的开发检查入口。源包应能在独立目录中重新构建 wheel，wheel 在独立环境中安装后完成帮助、版本及 MCP 调用。

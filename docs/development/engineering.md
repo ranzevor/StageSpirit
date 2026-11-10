@@ -21,7 +21,7 @@ node scripts/check_docs.cjs
 
 `RuntimeSummary` 是运行状态输出的类型定义。变更后执行 `uv run --frozen python scripts/export_contracts.py` 更新对应 JSON Schema，再运行契约检查。
 
-安装测试构建 wheel 与 sdist，从独立源包重建 wheel，在临时虚拟环境安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。CI 在 PR 和 main 推送时执行运行、契约、安装与文档检查。
+安装测试从工作区分别构建 wheel 与 sdist，再从独立源包重建 wheel，在临时虚拟环境安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。CI 在 PR 和 main 推送时执行运行、契约、安装与文档检查。
 
 文档检查使用 CommonMark 解析内联、引用式及 HTML 图片链接，检查本地目标、章节、UTF-8、JSON 代码块和品牌资源。首页徽章还检查完整类别、官方地址、显示值、替代文字和目标，版本、Python、许可、协议及规范版本与各自来源比较。外链校验覆盖地址结构，实际目标与状态另行核对。共享契约检查自动读取全部 Schema、正例和反例，跨字段业务规则按验收场景验证。
 

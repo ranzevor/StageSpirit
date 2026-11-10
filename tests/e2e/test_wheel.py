@@ -16,27 +16,40 @@ from stagespirit_mcp import __version__
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def run_uv(*arguments: str, cwd: Path = ROOT) -> None:
+    uv = shutil.which("uv")
+    assert uv is not None
+    result = subprocess.run(
+        [uv, *arguments],
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=180,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def build_distributions(source: Path, destination: Path) -> tuple[Path, Path]:
+    run_uv(
+        "build",
+        "--sdist",
+        "--wheel",
+        "--no-build-isolation",
+        "--out-dir",
+        str(destination),
+        cwd=source,
+    )
+    (wheel,) = destination.glob("*.whl")
+    (sdist,) = destination.glob("*.tar.gz")
+    return wheel, sdist
+
+
 @pytest.fixture(scope="module")
 def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Path, Path]:
     workdir = tmp_path_factory.mktemp("wheel 中文")
-    uv = shutil.which("uv")
-    assert uv is not None
-
-    def run(*arguments: str, cwd: Path = ROOT) -> None:
-        result = subprocess.run(
-            [uv, *arguments],
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=180,
-        )
-        assert result.returncode == 0, result.stdout + result.stderr
-
-    run("build", "--no-build-isolation", "--out-dir", str(workdir / "dist"))
-    (wheel,) = (workdir / "dist").glob("*.whl")
-    (sdist,) = (workdir / "dist").glob("*.tar.gz")
+    wheel, sdist = build_distributions(ROOT, workdir / "dist")
     source = workdir / "source"
     with tarfile.open(sdist) as archive:
         archive.extractall(source, filter="data")
@@ -53,7 +66,7 @@ def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Pat
         "uv.lock",
     ):
         assert (source_root / relative).read_bytes() == (ROOT / relative).read_bytes()
-    run(
+    run_uv(
         "build",
         "--wheel",
         "--no-build-isolation",
@@ -67,7 +80,7 @@ def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Pat
         for name in original.namelist():
             assert original.read(name) == rebuilt.read(name), name
     requirements = workdir / "requirements.txt"
-    run(
+    run_uv(
         "export",
         "--frozen",
         "--no-dev",
@@ -78,10 +91,10 @@ def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Pat
         str(requirements),
     )
     environment = workdir / "environment"
-    run("venv", "--python", sys.executable, str(environment), cwd=workdir)
+    run_uv("venv", "--python", sys.executable, str(environment), cwd=workdir)
     scripts = environment / ("Scripts" if os.name == "nt" else "bin")
     python = scripts / ("python.exe" if os.name == "nt" else "python")
-    run(
+    run_uv(
         "pip",
         "sync",
         "--python",
@@ -92,7 +105,7 @@ def installed_wheel(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, Pat
         str(requirements),
         cwd=workdir,
     )
-    run("pip", "install", "--python", str(python), "--no-deps", str(wheel), cwd=workdir)
+    run_uv("pip", "install", "--python", str(python), "--no-deps", str(wheel), cwd=workdir)
     return workdir, python, wheel
 
 
@@ -158,3 +171,39 @@ async def test_installed_cli_mcp(installed_wheel: tuple[Path, Path, Path]) -> No
             assert not status.is_error
             assert status.structured_content["profile_id"] == "installed"
             assert status.structured_content["version"] == __version__
+
+
+def test_wheel_build_uses_checkout_independently_of_sdist(tmp_path: Path) -> None:
+    source = tmp_path / "project"
+    package = source / "src/build_fixture"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8", newline="\n")
+    (package / "wheel_only.txt").write_text("wheel-only fixture\n", encoding="utf-8", newline="\n")
+    (source / "pyproject.toml").write_text(
+        '[build-system]\nrequires = ["hatchling==1.33.0"]\n'
+        'build-backend = "hatchling.build"\n'
+        '[project]\nname = "stagespirit-build-fixture"\nversion = "0.0.1"\n'
+        '[tool.hatch.build.targets.wheel]\npackages = ["src/build_fixture"]\n'
+        '[tool.hatch.build.targets.sdist]\ninclude = ["/src", "/pyproject.toml"]\n'
+        'exclude = ["/src/build_fixture/wheel_only.txt"]\n',
+        encoding="utf-8",
+        newline="\n",
+    )
+    wheel, sdist = build_distributions(source, tmp_path / "dist")
+    with zipfile.ZipFile(wheel) as archive:
+        assert archive.read("build_fixture/wheel_only.txt") == b"wheel-only fixture\n"
+    with tarfile.open(sdist) as archive:
+        assert not any(name.endswith("wheel_only.txt") for name in archive.getnames())
+        archive.extractall(tmp_path / "extracted", filter="data")
+    (extracted,) = (tmp_path / "extracted").iterdir()
+    run_uv(
+        "build",
+        "--wheel",
+        "--no-build-isolation",
+        "--out-dir",
+        str(tmp_path / "rebuilt"),
+        cwd=extracted,
+    )
+    (rebuilt,) = (tmp_path / "rebuilt").glob("*.whl")
+    with zipfile.ZipFile(rebuilt) as archive:
+        assert "build_fixture/wheel_only.txt" not in archive.namelist()
