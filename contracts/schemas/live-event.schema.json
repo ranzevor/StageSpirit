@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "归一化直播事件",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "connection_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "platform": {
+      "enum": [
+        "bilibili",
+        "youtube",
+        "twitch"
+      ]
+    },
+    "event_type": {
+      "enum": [
+        "chat",
+        "superchat",
+        "gift",
+        "member",
+        "follow",
+        "entry",
+        "raid"
+      ]
+    },
+    "occurred_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp",
+      "description": "上游提供的实际发生时间，缺失时省略"
+    },
+    "received_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "upstream_message_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "按连接与适配器声明的来源作用域解释和去重"
+    },
+    "viewer": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "user_level": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "is_member": {
+          "type": "boolean"
+        },
+        "guard_level": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "medal": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "level": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "name",
+            "level"
+          ],
+          "additionalProperties": false
+        },
+        "is_anonymous": {
+          "type": "boolean"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "uid"
+          ]
+        },
+        {
+          "required": [
+            "display_name"
+          ]
+        },
+        {
+          "properties": {
+            "is_anonymous": {
+              "const": true
+            }
+          },
+          "required": [
+            "is_anonymous"
+          ]
+        }
+      ]
+    },
+    "text": {
+      "type": "string"
+    },
+    "paid": {
+      "type": "boolean"
+    },
+    "value": {
+      "$ref": "common.schema.json#/$defs/Value"
+    },
+    "unit_value": {
+      "$ref": "common.schema.json#/$defs/Value"
+    },
+    "gift": {
+      "type": "object",
+      "properties": {
+        "gift_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "batch_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "name",
+        "quantity"
+      ],
+      "additionalProperties": false
+    },
+    "superchat": {
+      "type": "object",
+      "properties": {
+        "starts_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        },
+        "ends_at": {
+          "$ref": "common.schema.json#/$defs/Timestamp"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "membership": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "months": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "plan": {
+          "type": "string"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "coin_type": {
+          "type": "string"
+        },
+        "total_coin": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "plan": {
+          "type": "string"
+        },
+        "viewer_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "当前运行配置及数据代际内按持久接收顺序递增的本地序列"
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration"
+    },
+    "source": {
+      "type": "object",
+      "description": "接收时的真实房间或频道身份快照，不随后续连接设置改写",
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "broadcast_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "source_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "connection_id",
+    "platform",
+    "event_type",
+    "received_at",
+    "text",
+    "sequence",
+    "data_generation",
+    "source"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "gift"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "gift"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "superchat"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "properties": {
+              "unit": {
+                "const": "currency"
+              }
+            }
+          },
+          "paid": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "member"
+          }
+        },
+        "required": [
+          "event_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "membership"
+        ]
+      }
+    }
+  ]
+}

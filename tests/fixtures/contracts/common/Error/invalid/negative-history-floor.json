@@ -1,0 +1,10 @@
+{
+  "code": "HISTORY_GAP",
+  "message": "The requested event checkpoint precedes available history",
+  "retryable": false,
+  "context": {
+    "current_data_generation": "profile-generation-01",
+    "earliest_available_sequence": -1,
+    "requested_after_sequence": 3
+  }
+}

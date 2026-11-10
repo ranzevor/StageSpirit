@@ -1,0 +1,13 @@
+{
+  "data_generation": "profile-generation-01",
+  "model_id": "model-example",
+  "connection_id": "vts-example",
+  "model_generation": 2,
+  "enabled": true,
+  "saved_revision": 3,
+  "active_revision": 3,
+  "state": "active",
+  "connection_generation": 3,
+  "active_intent_count": 1,
+  "skipped_intent_count": 0
+}

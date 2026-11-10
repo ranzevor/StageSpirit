@@ -1,0 +1,5 @@
+{
+  "data_generation": "profile-generation-01",
+  "output_id": "output-example",
+  "idempotency_key": "release-example-001"
+}

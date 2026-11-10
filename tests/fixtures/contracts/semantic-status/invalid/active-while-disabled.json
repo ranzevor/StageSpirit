@@ -1,0 +1,22 @@
+{
+  "data_generation": "profile-generation-01",
+  "model_id": "model-example",
+  "connection_id": "vts-example",
+  "model_generation": 2,
+  "enabled": false,
+  "saved_revision": 3,
+  "active_revision": 3,
+  "state": "active",
+  "playback": {
+    "playback_id": "playback-example",
+    "playback_generation": 1,
+    "text_revision": 1,
+    "speech_connection_id": "speech-example",
+    "playback_clock": "pcm",
+    "alignment_source": "text_estimate",
+    "position_ms": 250.5
+  },
+  "connection_generation": 3,
+  "active_intent_count": 1,
+  "skipped_intent_count": 0
+}

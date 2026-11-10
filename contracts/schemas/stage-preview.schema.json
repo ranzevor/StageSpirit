@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "展台预检结果",
+  "type": "object",
+  "properties": {
+    "preview_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "connection_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "connection_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_kind": {
+          "enum": [
+            "uuid",
+            "name"
+          ]
+        }
+      },
+      "required": [
+        "scene_id",
+        "identity_kind"
+      ],
+      "additionalProperties": false
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "plan_resource_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expires_at": {
+      "$ref": "common.schema.json#/$defs/Timestamp"
+    },
+    "changes_summary": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "update": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bind": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remove": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "create",
+        "update",
+        "bind",
+        "remove"
+      ],
+      "additionalProperties": false
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration"
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "输出所属运行配置，绑定准备时的当前配置"
+    },
+    "target_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "规范化实际OBS目标身份，连接别名和重连不改变该身份"
+    },
+    "output_slot_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "由profile_id、project_id、target_id及场景原生身份确定的稳定槽位身份"
+    },
+    "occupied_output": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "project_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_slot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state_sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lifecycle_state": {
+          "enum": [
+            "active",
+            "releasing",
+            "failed"
+          ]
+        }
+      },
+      "required": [
+        "profile_id",
+        "project_id",
+        "output_id",
+        "output_slot_id",
+        "state_sequence",
+        "lifecycle_state"
+      ],
+      "additionalProperties": false,
+      "description": "准备时同一实际目标场景的已占用输出固定摘要；占用方及状态序列绑定计划"
+    },
+    "replace_output_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "stage_prepare显式提供并固定在计划中的同profile替换授权；省略时仅允许替换同项目同槽位输出"
+    }
+  },
+  "required": [
+    "preview_id",
+    "project_id",
+    "revision",
+    "connection_id",
+    "connection_generation",
+    "target",
+    "plan_digest",
+    "plan_resource_id",
+    "expires_at",
+    "changes_summary",
+    "data_generation",
+    "profile_id",
+    "target_id",
+    "output_slot_id"
+  ],
+  "additionalProperties": false,
+  "dependentRequired": {
+    "replace_output_id": [
+      "occupied_output"
+    ]
+  }
+}

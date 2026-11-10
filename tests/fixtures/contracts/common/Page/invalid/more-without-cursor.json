@@ -1,0 +1,10 @@
+{
+  "items": [
+    {
+      "id": "item-example"
+    }
+  ],
+  "next_cursor": null,
+  "has_more": true,
+  "data_generation": "profile-generation-01"
+}

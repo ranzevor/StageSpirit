@@ -1,0 +1,12 @@
+{
+  "items": [],
+  "next_cursor": null,
+  "has_more": false,
+  "metadata": {
+    "state": "ready",
+    "source": "discovered",
+    "complete": true,
+    "fetched_at": "2026-11-10T10:00:00+08:00"
+  },
+  "data_generation": "profile-generation-01"
+}

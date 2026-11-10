@@ -1,0 +1,6 @@
+{
+  "data_generation": "profile-generation-01",
+  "output_id": "output-example",
+  "expected_state_sequence": 4,
+  "idempotency_key": "release-example-001"
+}

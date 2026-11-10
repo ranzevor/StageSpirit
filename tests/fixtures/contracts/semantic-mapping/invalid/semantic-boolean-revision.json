@@ -1,0 +1,8 @@
+{
+  "model_id": "model-example",
+  "expected_revision": false,
+  "mode": "merge",
+  "enabled": true,
+  "mappings": [],
+  "data_generation": "profile-generation-01"
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "event_id": "evt-example-002",
+  "connection_id": "live-main",
+  "platform": "bilibili",
+  "event_type": "gift",
+  "occurred_at": "2026-11-07T10:01:00+08:00",
+  "received_at": "2026-11-07T10:01:00+08:00",
+  "viewer": {
+    "uid": "10002",
+    "display_name": "小满",
+    "user_level": 0,
+    "is_member": false,
+    "guard_level": 0
+  },
+  "text": "送你一份支持，继续加油。",
+  "paid": false,
+  "value": {
+    "amount": "100",
+    "unit": "silver_coin"
+  },
+  "gift": {
+    "gift_id": "gift-1",
+    "name": "免费应援礼物",
+    "quantity": 1
+  },
+  "attributes": {
+    "coin_type": "silver",
+    "total_coin": "100"
+  },
+  "sequence": 2,
+  "data_generation": "profile-generation-01",
+  "source": {
+    "source_id": "channel-example",
+    "display_name": "Example channel",
+    "broadcast_id": "broadcast-example"
+  }
+}

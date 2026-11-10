@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "event_id": "evt-example-003",
+  "connection_id": "twitch-main",
+  "platform": "twitch",
+  "event_type": "gift",
+  "occurred_at": "2026-11-07T10:02:00+08:00",
+  "received_at": "2026-11-07T10:02:01+08:00",
+  "upstream_message_id": "bits-702",
+  "viewer": {
+    "uid": "10003",
+    "display_name": "Mori",
+    "is_member": false
+  },
+  "text": "Cheer100 感谢分享，下一段也想听。",
+  "paid": true,
+  "value": {
+    "amount": "100",
+    "unit": "bits"
+  },
+  "gift": {
+    "name": "Bits",
+    "quantity": 100
+  },
+  "sequence": 3,
+  "data_generation": "profile-generation-01",
+  "source": {
+    "source_id": "channel-example",
+    "display_name": "Example channel",
+    "broadcast_id": "broadcast-example"
+  }
+}

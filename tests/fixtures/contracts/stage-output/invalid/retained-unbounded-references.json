@@ -1,0 +1,23 @@
+{
+  "data_generation": "profile-generation-01",
+  "output_id": "output-previous-project",
+  "project_id": "stage-previous-project",
+  "applied_revision": 5,
+  "connection_id": "obs-example",
+  "connection_generation": 2,
+  "target": {
+    "scene_id": "scene-example",
+    "identity_kind": "uuid"
+  },
+  "state_sequence": 9,
+  "lifecycle_state": "retained",
+  "ready": true,
+  "painted": false,
+  "output_url": "https://stage.example.test/output/output-previous-project?token=synthetic-token",
+  "profile_id": "profile-example",
+  "target_id": "obs-target-example",
+  "output_slot_id": "slot-previous-project-obs-scene",
+  "retained_reference_count": 2,
+  "details_resource_id": "output-previous-project-details",
+  "retained_references": []
+}

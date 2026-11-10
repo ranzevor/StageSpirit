@@ -1,0 +1,11 @@
+{
+  "operation_id": "apply-example-007",
+  "state": "completed",
+  "execution_generation": 1,
+  "effect_state": "confirmed",
+  "recovery": {
+    "state": "idle"
+  },
+  "data_generation": "profile-generation-01",
+  "result_resource_id": "stage-result-example-007"
+}

@@ -1,0 +1,14 @@
+{
+  "data_generation": "profile-generation-01",
+  "section": "performance",
+  "scope_id": "model-example",
+  "saved_revision": 3,
+  "active_revision": null,
+  "application_state": "failed",
+  "error": {
+    "code": "MODEL_NOT_LOADED",
+    "message": "The saved mapping cannot be activated until the target model is loaded",
+    "retryable": true,
+    "action": "Load the bound model to retry activation of saved revision 3"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "版本化配置导出",
+  "type": "object",
+  "properties": {
+    "format_version": {
+      "const": 1
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "values": {
+            "type": "object"
+          },
+          "credential_refs": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "section": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "section",
+          "revision",
+          "values"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "profile_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration",
+      "description": "导出来源的数据代际，导入时另行校验目标代际"
+    }
+  },
+  "required": [
+    "format_version",
+    "profile_id",
+    "sections",
+    "profile_revision",
+    "data_generation"
+  ],
+  "additionalProperties": false
+}

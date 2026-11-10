@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "仅合成语音请求",
+  "type": "object",
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "voice_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "text_mode": {
+      "enum": [
+        "spoken",
+        "verbatim"
+      ],
+      "default": "spoken"
+    },
+    "style": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "connection_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "省略时使用当前运行配置的默认语音连接"
+    },
+    "data_generation": {
+      "$ref": "common.schema.json#/$defs/DataGeneration"
+    }
+  },
+  "required": [
+    "text",
+    "idempotency_key",
+    "data_generation"
+  ],
+  "additionalProperties": false
+}
