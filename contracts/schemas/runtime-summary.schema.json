@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ModuleSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "state": {
+          "const": "ready",
+          "title": "State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "state"
+      ],
+      "title": "ModuleSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "profile_id": {
+      "description": "当前运行配置",
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "data_generation": {
+      "description": "持久数据集的代际身份",
+      "minLength": 1,
+      "title": "Data Generation",
+      "type": "string"
+    },
+    "instance_id": {
+      "description": "本次服务进程的运行实例",
+      "minLength": 1,
+      "title": "Instance Id",
+      "type": "string"
+    },
+    "version": {
+      "description": "已安装的 StageSpirit 版本",
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "state": {
+      "const": "running",
+      "title": "State",
+      "type": "string"
+    },
+    "process_id": {
+      "exclusiveMinimum": 0,
+      "title": "Process Id",
+      "type": "integer"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "uptime_ms": {
+      "minimum": 0,
+      "title": "Uptime Ms",
+      "type": "integer"
+    },
+    "capability_groups": {
+      "items": {
+        "const": "core",
+        "type": "string"
+      },
+      "title": "Capability Groups",
+      "type": "array"
+    },
+    "modules": {
+      "items": {
+        "$ref": "#/$defs/ModuleSummary"
+      },
+      "title": "Modules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "profile_id",
+    "data_generation",
+    "instance_id",
+    "version",
+    "state",
+    "process_id",
+    "started_at",
+    "uptime_ms",
+    "capability_groups",
+    "modules"
+  ],
+  "title": "RuntimeSummary",
+  "type": "object"
+}

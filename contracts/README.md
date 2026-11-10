@@ -4,10 +4,17 @@
 
 [工具目录](tool-catalog.json)登记工具边界、能力组、输入语义、结果类型和分页要求。实现阶段由类型化注册表生成完整工具接口，引用这些共享 Schema，按本目录核对业务含义。目录内的 input 是字段语义说明，关键请求的具体类型由其 input_schema 规定，其余完整输入输出在实现所属阶段形成。
 
+## 已实现契约的生成
+
+`runtime-summary.schema.json` 由 `src/stagespirit_mcp/runtime/models.py` 中的 `RuntimeSummary` 生成。执行 `uv run --frozen python scripts/export_contracts.py` 更新文件，添加 `--check` 校验生成结果与当前类型一致。MCP 工具注册使用同一返回类型，契约测试比较发现结果、实际返回与公开 Schema。
+
+其余共享 Schema 继续在本目录维护，按所属实施阶段接入运行代码。
+
 ## 共享模型与关键请求
 
 | 对象 | Schema | 示例 |
 | --- | --- | --- |
+| 运行状态 | [实例摘要](schemas/runtime-summary.schema.json) | runtime_status 实际返回 |
 | 分页、回执、错误和价值单位 | [共享定义](schemas/common.schema.json) | 各查询和回执消费 |
 | 直播事件 | [事件](schemas/live-event.schema.json) | [SC](../examples/contracts/event-superchat.json)、[免费礼物](../examples/contracts/event-free-gift.json)、[Bits](../examples/contracts/event-bits.json)、[匿名会员事件](../examples/contracts/event-member.json) |
 | 音色目录 | [分页与状态](schemas/voice-page.schema.json) | [当前配置值](../examples/contracts/voice-page-configured.json)、[服务返回空目录](../examples/contracts/voice-page-empty.json) |

@@ -13,6 +13,7 @@
       "summary": "读取固定模块摘要和实例状态",
       "input": {},
       "output": "RuntimeSummary",
+      "output_schema": "schemas/runtime-summary.schema.json",
       "capability_group": "core",
       "output_semantics": "包含当前data_generation与固定模块摘要"
     },
