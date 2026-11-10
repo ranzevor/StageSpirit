@@ -6,6 +6,12 @@ build-backend = "hatchling.build"
 name = "stagespirit-mcp"
 dynamic = ["version"]
 description = "StageSpirit virtual streamer integration service"
+keywords = ["mcp", "vtuber", "livestream"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: Microsoft :: Windows",
+]
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = "Apache-2.0"
@@ -56,6 +62,9 @@ include = [
   "/pyproject.toml",
   "/uv.lock",
   "/.python-version",
+  "/.editorconfig",
+  "/.gitattributes",
+  "/.gitignore",
 ]
 
 [tool.ruff]
@@ -66,7 +75,7 @@ line-length = 100
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pyright]
-include = ["src", "scripts"]
+include = ["src", "scripts", "examples/mcp"]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
 

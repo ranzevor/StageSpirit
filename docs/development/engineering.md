@@ -2,7 +2,7 @@
 
 本文面向项目开发和制品维护，说明 Python 与前端的技术选择、模块接入、验证、编码及安装交付约定。
 
-StageSpirit 以独立 Python 包交付。使用 CPython 3.12 系列、pyproject.toml 和依赖锁建立可重建环境，Windows 为首个验收平台。前端采用 TypeScript 和 Vite，静态产物随包分发。Node.js、包管理器及前端依赖在前端构建输入中固定，构建在独立目录生成产物后纳入 wheel。
+StageSpirit 以独立 Python 包交付。使用 CPython 3.12 系列、pyproject.toml 和依赖锁建立可重建环境，Windows 为首个验收平台。D5 前端采用 TypeScript 和 Vite，静态产物随该阶段安装包分发。Node.js、包管理器及前端依赖在前端构建输入中固定，构建在独立目录生成产物后纳入 wheel。
 
 ## 开发环境与检查
 
@@ -10,20 +10,24 @@ StageSpirit 以独立 Python 包交付。使用 CPython 3.12 系列、pyproject.
 
 ```shell
 uv sync --frozen
-uv run --frozen ruff check src scripts tests
-uv run --frozen ruff format --check src scripts tests
+uv run --frozen ruff check src scripts tests examples
+uv run --frozen ruff format --check src scripts tests examples
 uv run --frozen pyright
 uv run --frozen python scripts/export_contracts.py --check
 uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e
+node --test tests/governance/check_docs.test.cjs
+node scripts/check_docs.cjs
 ```
 
 `RuntimeSummary` 是运行状态输出的类型定义。变更后执行 `uv run --frozen python scripts/export_contracts.py` 更新对应 JSON Schema，再运行契约检查。
 
-安装测试构建 wheel，在临时虚拟环境中安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。Windows PR 检查执行同一组命令。
+安装测试从工作区分别构建 wheel 与 sdist，再从独立源包重建 wheel，在临时虚拟环境安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。CI 在 PR 和 main 推送时执行运行、契约、安装与文档检查。
+
+文档检查使用 CommonMark 解析内联、引用式及 HTML 图片链接，检查本地目标、章节、UTF-8、JSON 代码块和品牌资源。首页徽章还检查完整类别、官方地址、显示值、替代文字和目标，版本、Python、许可、协议及规范版本与各自来源比较。外链校验覆盖地址结构，实际目标与状态另行核对。共享契约检查自动读取全部 Schema、正例和反例，跨字段业务规则按验收场景验证。
 
 ## 提交与合并检查
 
-提交检查使用 Node.js 22.15.0。进入仓库根目录，在审查过的分支中安装本地钩子。
+提交检查使用 Node.js 22.15.0。CommonJS 工具使用 `.cjs` 扩展名，依赖的 CommonMark.js 随源包提供。进入仓库根目录，在审查过的分支中安装本地钩子。
 
 ```shell
 node scripts/install_commit_hook.cjs
@@ -34,7 +38,7 @@ node scripts/install_commit_hook.cjs
 修改校验器后运行对应测试。
 
 ```shell
-node --test tests/governance/*.test.cjs
+node --test tests/governance/commit_message.test.cjs tests/governance/commit_hook.test.cjs
 ```
 
 合并前将拟采用的标题和正文写入仓库外的 UTF-8 文件，第一行为标题，空行后为正文。
@@ -45,7 +49,7 @@ node .github/scripts/commit_message.cjs message-file <消息文件>
 
 通过校验的同一标题和正文分别作为 Squash 合并的 `commit_title` 和 `commit_message`，并用已审查的 PR HEAD 作为 `sha`。修改消息后重新校验。
 
-`commit-message-tests` 检查新增校验逻辑。`governance-metadata` 从 PR 目标分支加载校验器，分页读取当前 PR 的实际提交，检查标题和提交消息。该工作流随校验器合入目标分支后启用，首次实际运行通过后加入主分支必需检查。
+`commit-message-tests` 检查新增校验逻辑。`governance-metadata` 从 PR 目标分支加载校验器，分页读取当前 PR 的实际提交，检查标题、PR 正文的变更、验证和兼容章节，以及提交消息。该检查已纳入主分支必需检查。新增检查首次通过后，将其稳定名称配置为主分支必需检查。
 
 [提交消息规则](../../CONTRIBUTING.md#提交消息与-pr-标题) · [代码来源与许可](../../.github/scripts/NOTICE.md)
 

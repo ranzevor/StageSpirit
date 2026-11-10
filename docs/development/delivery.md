@@ -15,6 +15,12 @@
 
 D1 固定 PlaybackEvent、PlaybackAlignment、CollectionSnapshot、AvatarControl、ConfigurationParticipant 和 BroadcastControl 的最小接口。D2 的字幕投影可单独验证，D5 再验证实际 OBS 展示。D6 完成[首版范围](../product/scope.md)内的全部渠道，早期可用链路不缩减稳定版范围。[性能需求](../requirements/README.md#req-perf-001)随各阶段链路验收，统一场景入口为 [ACC-PERF-001](../testing/acceptance.md#acc-perf-001)。
 
+## 当前交付
+
+当前提供 D1 的安装与运行基础，包括 Python 包、CLI、stdio MCP、运行配置隔离、实例锁、原子维护状态及 runtime_status。D1 的配置管理、分页、凭据、操作管理和提供方发现继续按本阶段退出条件交付。
+
+[当前使用入口](../guides/quickstart.md) · [当前接口](../reference/mcp.md)
+
 ## 阶段与需求
 
 | 阶段 | 对应需求 |

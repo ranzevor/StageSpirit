@@ -44,4 +44,4 @@ sequence 是运行配置当前 data_generation 内单调递增的本地接收序
 
 默认保存已接收业务事件，按显式保留策略清理。未完成分发和恢复所需的记录受保护。磁盘失败返回具体持久化错误；已落库事件可通过历史继续读取。
 
-接口和错误见[MCP 契约](../reference/mcp.md)，动作协调见[内部接口](../architecture/interfaces.md)。
+接口和错误见[MCP 契约](../design/mcp-contract.md)，动作协调见[内部接口](../architecture/interfaces.md)。

@@ -2,12 +2,8 @@ name: Commit message tests
 
 on:
   pull_request:
-    paths:
-      - ".github/scripts/**"
-      - ".github/workflows/commit-message-tests.yml"
-      - ".github/workflows/governance-metadata.yml"
-      - "scripts/install_commit_hook.cjs"
-      - "tests/governance/**"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -26,4 +22,4 @@ jobs:
         with:
           node-version: "22.15.0"
       - name: Check messages, pagination and installed hooks
-        run: node --test tests/governance/*.test.cjs
+        run: node --test tests/governance/commit_message.test.cjs tests/governance/commit_hook.test.cjs
