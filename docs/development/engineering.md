@@ -19,7 +19,7 @@ node --test tests/governance/check_docs.test.cjs
 node scripts/check_docs.cjs
 ```
 
-`RuntimeSummary` 是运行状态输出的类型定义。变更后执行 `uv run --frozen python scripts/export_contracts.py` 更新对应 JSON Schema，再运行契约检查。
+`RuntimeSummary`、`RuntimeSettings` 和 settings 请求响应模型分别定义当前运行状态与配置契约。变更后执行 `uv run --frozen python scripts/export_contracts.py` 更新对应 JSON Schema，再运行契约检查。
 
 安装测试从工作区分别构建 wheel 与 sdist，再从独立源包重建 wheel，在临时虚拟环境安装锁定的运行依赖，通过安装后的命令执行 MCP 工具发现和调用。CI 在 PR 和 main 推送时执行运行、契约、安装与文档检查。
 

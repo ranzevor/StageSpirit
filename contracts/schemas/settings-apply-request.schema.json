@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "section": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Section",
+      "type": "string"
+    },
+    "scope_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scope Id"
+    },
+    "data_generation": {
+      "minLength": 1,
+      "title": "Data Generation",
+      "type": "string"
+    },
+    "revision": {
+      "maximum": 9223372036854775807,
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "section",
+    "data_generation",
+    "revision",
+    "idempotency_key"
+  ],
+  "title": "SettingsApplyRequest",
+  "type": "object"
+}

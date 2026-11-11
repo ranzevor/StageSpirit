@@ -5,6 +5,8 @@ from time import monotonic
 from uuid import uuid4
 
 from stagespirit_mcp import __version__
+from stagespirit_mcp.modules.settings.service import SettingsService
+from stagespirit_mcp.runtime.configuration import RuntimeConfiguration
 from stagespirit_mcp.runtime.models import ModuleSummary, RuntimeSummary
 
 
@@ -12,6 +14,8 @@ from stagespirit_mcp.runtime.models import ModuleSummary, RuntimeSummary
 class RuntimeInstance:
     profile_id: str
     data_generation: str
+    configuration: RuntimeConfiguration
+    settings: SettingsService
     instance_id: str = field(default_factory=lambda: str(uuid4()))
     started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     _started_monotonic: float = field(default_factory=monotonic, repr=False)
@@ -27,5 +31,8 @@ class RuntimeInstance:
             started_at=self.started_at,
             uptime_ms=max(0, int((monotonic() - self._started_monotonic) * 1000)),
             capability_groups=["core"],
-            modules=[ModuleSummary(name="runtime", state="ready")],
+            modules=[
+                ModuleSummary(name="runtime", state="ready"),
+                ModuleSummary(name="settings", state="ready"),
+            ],
         )

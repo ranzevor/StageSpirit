@@ -16,7 +16,7 @@ StageSpirit 是面向 Agent 的虚拟主播集成服务，将直播消息、语�
 
 ## 当前版本
 
-当前开发版本为 `0.1.0.dev0`，提供可安装的 Python 包、独立 stdio MCP 入口、运行配置隔离和 `runtime_status` 查询。服务会保存运行配置的数据代际，并在重启后继续使用。语音、形象、直播事件和展台按交付计划逐批实现。
+当前开发版本为 `0.1.0.dev0`，提供可安装的 Python 包、独立 stdio MCP 入口、运行配置隔离、状态查询及配置保存与应用。`runtime.log_level` 即时生效并在重启后恢复，保存修订、活动修订和应用操作可分别查询。语音、形象、直播事件和展台按交付计划逐批实现。
 
 [当前接口](docs/reference/mcp.md) · [版本与支持范围](docs/development/compatibility.md) · [交付计划](docs/development/delivery.md)
 
@@ -38,7 +38,7 @@ uv run --frozen --no-dev stagespirit --version
 | 任务 | 入口 |
 | --- | --- |
 | 了解产品目标和首版范围 | [产品定位](docs/product/overview.md)、[范围与边界](docs/product/scope.md) |
-| 安装、连接并查询运行状态 | [快速开始](docs/guides/quickstart.md)、[当前 MCP 接口](docs/reference/mcp.md) |
+| 安装、连接和管理运行配置 | [快速开始](docs/guides/quickstart.md)、[当前 MCP 接口](docs/reference/mcp.md) |
 | 接入后续业务能力 | [Agent 工作流设计](docs/design/agent-workflows.md)、[MCP 契约设计](docs/design/mcp-contract.md) |
 | 理解需求、模块与数据归属 | [需求规格](docs/requirements/README.md)、[总体架构](docs/architecture/README.md) |
 | 开发、测试与维护 | [开发文档](docs/development/README.md)、[测试设计](docs/testing/README.md) |

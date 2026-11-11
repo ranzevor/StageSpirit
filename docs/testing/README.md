@@ -11,13 +11,19 @@
 D1 首批的执行入口为 `uv run --frozen pytest tests/unit tests/integration tests/contract tests/e2e`。
 
 - `tests/unit` 验证 profile 路径、长度、字符与系统保留名称。
-- `tests/integration` 验证维护状态、实例锁、代际隔离、重启、异常写入和进程退出恢复。
-- `tests/contract` 校验全部共享 Schema 与现有正反例，并通过实际 stdio 进程验证初始化、工具目录、状态结构、协议错误、UTF-8 管道与中文路径。
-- `tests/e2e` 构建 wheel 与 sdist，在独立目录从 sdist 重建 wheel，再于临时环境安装锁定的运行依赖，验证安装位置、许可、CLI 和 MCP 调用。
+- `tests/integration` 验证维护状态、实例锁、代际隔离、SQLite 配置、双连接条件写入、应用及提交失败、工作队列、取消等待、迁移回滚、重启与旧回调。
+- `tests/contract` 校验全部共享 Schema 与现有正反例，并通过实际 stdio 进程验证初始化、工具目录、状态与配置结构、业务和协议错误、保存与重启恢复、UTF-8 管道与中文路径。
+- `tests/e2e` 构建 wheel 与 sdist，在独立目录从 sdist 重建 wheel，再于临时环境安装锁定的运行依赖，验证安装位置、许可、CLI、MCP 配置保存及重启后的实际活动值。
 
 文档检查执行 `node --test tests/governance/check_docs.test.cjs` 与 `node scripts/check_docs.cjs`，覆盖正常引用、断链、章节、路径越界、JSON 代码块、图标及徽章。静态检查与 Schema 生成命令见工程约定。
 
 [开发环境与检查](../development/engineering.md#开发环境与检查)
+
+配置当前场景可单独执行，覆盖 REQ-CFG-001 的 runtime 分区、ACC-CFG-002 的修订与应用、ACC-CFG-004 的中断和旧回调，以及 ACC-CFG-003 的事务迁移回滚。
+
+```shell
+uv run --frozen pytest tests/integration/test_settings.py tests/contract/test_settings_stdio.py
+```
 
 ## 验证层次
 

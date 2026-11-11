@@ -6,6 +6,8 @@ from filelock import FileLock, Timeout
 
 from stagespirit_mcp.infrastructure.paths import profile_directory
 from stagespirit_mcp.infrastructure.profile_state import load_control_state
+from stagespirit_mcp.modules.settings.service import SettingsService
+from stagespirit_mcp.runtime.configuration import RuntimeConfiguration
 from stagespirit_mcp.runtime.errors import StartupError
 from stagespirit_mcp.runtime.service import RuntimeInstance
 
@@ -25,6 +27,18 @@ def open_runtime(profile_id: str, data_root: Path | None) -> Generator[RuntimeIn
 
     try:
         state = load_control_state(directory, profile_id)
-        yield RuntimeInstance(profile_id=state.profile_id, data_generation=state.data_generation)
+        configuration = RuntimeConfiguration()
+        settings = SettingsService(
+            directory, state.profile_id, state.data_generation, (configuration,)
+        )
+        try:
+            yield RuntimeInstance(
+                profile_id=state.profile_id,
+                data_generation=state.data_generation,
+                configuration=configuration,
+                settings=settings,
+            )
+        finally:
+            settings.close()
     finally:
         lock.release()

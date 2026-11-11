@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "RuntimeSettingsChanges": {
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "log_level": {
+          "default": "WARNING",
+          "enum": [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL"
+          ],
+          "title": "Log Level",
+          "type": "string"
+        }
+      },
+      "title": "RuntimeSettingsChanges",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "section": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Section",
+      "type": "string"
+    },
+    "scope_id": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scope Id"
+    },
+    "data_generation": {
+      "minLength": 1,
+      "title": "Data Generation",
+      "type": "string"
+    },
+    "expected_revision": {
+      "maximum": 9223372036854775807,
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "changes": {
+      "$ref": "#/$defs/RuntimeSettingsChanges"
+    }
+  },
+  "required": [
+    "section",
+    "data_generation",
+    "expected_revision",
+    "changes"
+  ],
+  "title": "SettingsSaveRequest",
+  "type": "object"
+}

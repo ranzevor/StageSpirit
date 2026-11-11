@@ -108,7 +108,9 @@
         "scope_id": "可选模型或配置范围"
       },
       "output": "ConfigurationSection",
-      "capability_group": "core"
+      "capability_group": "core",
+      "input_schema": "schemas/settings-get-request.schema.json",
+      "output_schema": "schemas/settings-section.schema.json"
     },
     {
       "name": "settings_save",
@@ -124,7 +126,8 @@
       },
       "output": "ConfigurationReceipt",
       "output_schema": "schemas/configuration-receipt.schema.json",
-      "capability_group": "core"
+      "capability_group": "core",
+      "input_schema": "schemas/settings-save-request.schema.json"
     },
     {
       "name": "settings_apply",
@@ -140,7 +143,8 @@
       },
       "output": "OperationReceipt",
       "capability_group": "core",
-      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt"
+      "output_schema": "schemas/common.schema.json#/$defs/OperationReceipt",
+      "input_schema": "schemas/settings-apply-request.schema.json"
     },
     {
       "name": "settings_export",
@@ -387,7 +391,8 @@
       },
       "output": "OperationDetail",
       "output_schema": "schemas/operation-detail.schema.json",
-      "capability_group": "core"
+      "capability_group": "core",
+      "input_schema": "schemas/operation-get-request.schema.json"
     },
     {
       "name": "operation_cancel",
