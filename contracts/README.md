@@ -1,14 +1,14 @@
 # 工具与数据契约
 
-本文供接口设计和接入开发查阅，集中说明首版工具边界、共享 Schema、关键请求响应、示例及应用层不变量。当前已实现接口为 runtime_status，其余契约随所属模块交付。
+本文供接口设计和接入开发查阅，集中说明首版工具边界、共享 Schema、关键请求响应、示例及应用层不变量。当前已实现 runtime_status、runtime 分区配置的读取、保存和应用，以及配置操作查询，其余契约随所属模块交付。
 
 [工具目录](tool-catalog.json)登记工具边界、能力组、输入语义、结果类型和分页要求。实现阶段由类型化注册表生成完整工具接口，引用这些共享 Schema，按本目录核对业务含义。目录内的 input 是字段语义说明，关键请求的具体类型由其 input_schema 规定，其余完整输入输出在实现所属阶段形成。
 
 ## 已实现契约的生成
 
-`runtime-summary.schema.json` 由 `src/stagespirit_mcp/runtime/models.py` 中的 `RuntimeSummary` 生成。执行 `uv run --frozen python scripts/export_contracts.py` 更新文件，添加 `--check` 校验生成结果与当前类型一致。MCP 工具注册使用同一返回类型，契约测试比较发现结果、实际返回与公开 Schema。
+`runtime-summary.schema.json` 由 `RuntimeSummary` 生成；`runtime-settings`、`settings-section` 和配置请求 Schema 由当前运行配置及 settings 模型生成。执行 `uv run --frozen python scripts/export_contracts.py` 更新文件，添加 `--check` 校验生成结果与当前类型一致。MCP 工具注册使用同一返回类型，契约测试比较发现结果、实际返回与公开 Schema。
 
-其余共享 Schema 继续在本目录维护，按所属实施阶段接入运行代码。
+配置保存和应用的实际回执分别验证现有配置回执与共享操作契约，单条查询验证操作详情契约。其余共享 Schema 继续在本目录维护，按所属实施阶段接入运行代码。
 
 ## 共享模型与关键请求
 
@@ -24,6 +24,7 @@
 | 字幕视图 | [字幕](schemas/subtitle-state.schema.json) | [清理后的正文](../examples/contracts/subtitle-state.json) |
 | 语义配置 | [映射](schemas/semantic-mapping.schema.json) | [独立映射](../examples/contracts/semantic-mapping.json) |
 | 语义运行状态 | [有限摘要](schemas/semantic-status.schema.json) | 播放时钟、正文对齐、活动修订与暂停原因 |
+| 配置读取与变更 | [配置范围](schemas/settings-section.schema.json)、[保存输入](schemas/settings-save-request.schema.json)、[应用输入](schemas/settings-apply-request.schema.json) | [运行配置](../examples/contracts/settings-section.json)、[保存请求](../examples/contracts/settings-save-request.json) |
 | 配置生效 | [配置回执](schemas/configuration-receipt.schema.json) | [已保存但应用失败](../examples/contracts/configuration-receipt.json) |
 | 展台准备 | [预检结果](schemas/stage-preview.schema.json) | [预检](../examples/contracts/stage-preview.json) |
 | 展台应用 | [应用请求](schemas/stage-apply.schema.json) | [应用](../examples/contracts/stage-apply.json) |

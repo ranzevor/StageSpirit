@@ -17,7 +17,9 @@ D1 固定 PlaybackEvent、PlaybackAlignment、CollectionSnapshot、AvatarControl
 
 ## 当前交付
 
-当前提供 D1 的安装与运行基础，包括 Python 包、CLI、stdio MCP、运行配置隔离、实例锁、原子维护状态及 runtime_status。D1 的配置管理、分页、凭据、操作管理和提供方发现继续按本阶段退出条件交付。
+当前提供 D1 的安装与运行基础，以及 SQLite 配置持久化。settings_get、settings_save、settings_apply 已接入 runtime.log_level，operation_get 可读取配置应用操作；保存与活动修订分离，支持条件写入、原操作重试和重启恢复。
+
+D1 的其他配置分区、导入导出与数据恢复、分页、凭据、完整操作管理和提供方发现继续按本阶段退出条件交付。
 
 [当前使用入口](../guides/quickstart.md) · [当前接口](../reference/mcp.md)
 

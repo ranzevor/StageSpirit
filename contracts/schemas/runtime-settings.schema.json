@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "log_level": {
+      "default": "WARNING",
+      "enum": [
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ],
+      "title": "Log Level",
+      "type": "string"
+    }
+  },
+  "title": "RuntimeSettings",
+  "type": "object"
+}

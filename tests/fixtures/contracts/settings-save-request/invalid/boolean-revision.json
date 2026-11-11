@@ -1,0 +1,8 @@
+{
+  "section": "runtime",
+  "data_generation": "profile-data-example",
+  "expected_revision": true,
+  "changes": {
+    "log_level": "ERROR"
+  }
+}

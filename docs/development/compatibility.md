@@ -10,8 +10,8 @@
 | 操作系统 | Windows x64 |
 | Python | CPython 3.12，构建与 CI 使用 3.12.3 |
 | MCP | stdio，协议 `2025-11-25`，Python SDK 2.3.0 |
-| 公开入口 | `stagespirit`、`python -m stagespirit_mcp`、`runtime_status` |
-| 持久状态 | `control.json` 格式 1，保存运行配置与数据代际 |
+| 公开入口 | `stagespirit`、`python -m stagespirit_mcp`；runtime_status、settings_get、settings_save、settings_apply、operation_get |
+| 持久状态 | `control.json` 格式 1；`state.sqlite3` 模式版本 1，保存 runtime 配置、修订和配置应用操作 |
 | 开发工具 | uv 0.8.2；Node.js 22.15.0 用于文档和提交检查 |
 
 后续平台、提供方与协议支持在各自模块交付时进入本表，并关联对应验收。完整首版目标见产品范围。
@@ -31,6 +31,8 @@
 更新前读取目标版本的发行说明，停止正在使用该源码目录的客户端连接，然后按目标版本源码运行 `uv sync --frozen --no-dev`。重连后核对程序版本和运行配置。
 
 普通重启沿用 `control.json` 中的数据代际。同一配置目录只能由一个活动进程使用。维护状态无法解析、格式版本不支持或配置身份不匹配时，启动失败并保留原文件；根据该版本的迁移步骤恢复后重试。
+
+只有 `control.json` 的现有 profile 首次启动会创建配置数据库，并沿用原数据代际。数据库模式版本 1 使用 WAL 和 FULL 同步；初始化与递增迁移在事务中执行，迁移失败回滚。高于当前支持版本的数据库返回 `MIGRATION_REQUIRED`，数据库与维护状态的 profile 或数据代际不一致时拒绝启动。
 
 数据格式升级必须提供旧数据输入、升级结果和失败恢复的验证。发生不可逆迁移时，发行说明给出对应前置和恢复来源。源码、程序和数据的恢复分别核对兼容性。
 

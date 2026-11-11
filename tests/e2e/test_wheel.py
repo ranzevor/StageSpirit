@@ -166,11 +166,36 @@ async def test_installed_cli_mcp(installed_wheel: tuple[Path, Path, Path]) -> No
     async with stdio_client(parameters) as (read, write):
         async with ClientSession(read, write, read_timeout_seconds=10) as session:
             await session.initialize()
-            assert [tool.name for tool in (await session.list_tools()).tools] == ["runtime_status"]
+            assert [tool.name for tool in (await session.list_tools()).tools] == [
+                "runtime_status",
+                "settings_get",
+                "settings_save",
+                "settings_apply",
+                "operation_get",
+            ]
             status = await session.call_tool("runtime_status", {})
             assert not status.is_error
             assert status.structured_content["profile_id"] == "installed"
             assert status.structured_content["version"] == __version__
+            saved = await session.call_tool(
+                "settings_save",
+                {
+                    "section": "runtime",
+                    "data_generation": status.structured_content["data_generation"],
+                    "expected_revision": 0,
+                    "changes": {"log_level": "ERROR"},
+                },
+            )
+            assert not saved.is_error
+            assert saved.structured_content["active_revision"] == 1
+    async with stdio_client(parameters) as (read, write):
+        async with ClientSession(read, write, read_timeout_seconds=10) as session:
+            await session.initialize()
+            restored = await session.call_tool("settings_get", {"section": "runtime"})
+            assert not restored.is_error
+            assert restored.structured_content["values"] == {"log_level": "ERROR"}
+            assert restored.structured_content["active_values"] == {"log_level": "ERROR"}
+            assert restored.structured_content["saved_revision"] == 1
 
 
 def test_wheel_build_uses_checkout_independently_of_sdist(tmp_path: Path) -> None:

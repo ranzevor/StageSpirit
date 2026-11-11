@@ -10,6 +10,7 @@ import pytest
 def test_cli_information_does_not_load_runtime(arguments: list[str], tmp_path: Path) -> None:
     script = (
         "import sys; sys.modules['mcp'] = None; sys.modules['filelock'] = None; "
+        "sys.modules['pydantic'] = None; sys.modules['sqlite3'] = None; "
         "from stagespirit_mcp.entrypoints.cli import main; "
         "raise SystemExit(main(sys.argv[1:]))"
     )

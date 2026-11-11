@@ -1,0 +1,14 @@
+{
+  "section": "runtime",
+  "data_generation": "profile-data-example",
+  "saved_revision": 1,
+  "active_revision": 1,
+  "application_state": "applied",
+  "apply_operation_id": "op-settings-1",
+  "values": {
+    "log_level": 1
+  },
+  "active_values": {
+    "log_level": "ERROR"
+  }
+}

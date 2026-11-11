@@ -30,7 +30,13 @@ async def test_discovery_status_and_unknown_tool(server_parameters: StdioServerP
                 assert initialization.server_info.name == "StageSpirit"
                 assert initialization.server_info.version == __version__
                 listing = await session.list_tools()
-                assert [tool.name for tool in listing.tools] == ["runtime_status"]
+                assert [tool.name for tool in listing.tools] == [
+                    "runtime_status",
+                    "settings_get",
+                    "settings_save",
+                    "settings_apply",
+                    "operation_get",
+                ]
                 assert listing.next_cursor is None
                 resources = await session.list_resources()
                 assert resources.resources == [] and resources.next_cursor is None
@@ -55,7 +61,8 @@ async def test_discovery_status_and_unknown_tool(server_parameters: StdioServerP
                 assert isinstance(result.content[0], TextContent)
                 assert json.loads(result.content[0].text) == result.structured_content
                 assert result.structured_content["modules"] == [
-                    {"name": "runtime", "state": "ready"}
+                    {"name": "runtime", "state": "ready"},
+                    {"name": "settings", "state": "ready"},
                 ]
                 with pytest.raises(MCPError) as unknown:
                     await session.call_tool("missing_tool", {})

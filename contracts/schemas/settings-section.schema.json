@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Error": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "operation_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operation Id"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Field"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action"
+        },
+        "context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorContext"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable"
+      ],
+      "title": "Error",
+      "type": "object"
+    },
+    "ErrorContext": {
+      "additionalProperties": false,
+      "properties": {
+        "current_data_generation": {
+          "minLength": 1,
+          "title": "Current Data Generation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "current_data_generation"
+      ],
+      "title": "ErrorContext",
+      "type": "object"
+    },
+    "RuntimeSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "log_level": {
+          "default": "WARNING",
+          "enum": [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL"
+          ],
+          "title": "Log Level",
+          "type": "string"
+        }
+      },
+      "title": "RuntimeSettings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "section": {
+      "minLength": 1,
+      "title": "Section",
+      "type": "string"
+    },
+    "scope_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scope Id"
+    },
+    "data_generation": {
+      "minLength": 1,
+      "title": "Data Generation",
+      "type": "string"
+    },
+    "saved_revision": {
+      "minimum": 0,
+      "title": "Saved Revision",
+      "type": "integer"
+    },
+    "active_revision": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Active Revision"
+    },
+    "application_state": {
+      "enum": [
+        "applied",
+        "applying",
+        "failed"
+      ],
+      "title": "Application State",
+      "type": "string"
+    },
+    "apply_operation_id": {
+      "minLength": 1,
+      "title": "Apply Operation Id",
+      "type": "string"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Error"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "values": {
+      "$ref": "#/$defs/RuntimeSettings"
+    },
+    "active_values": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RuntimeSettings"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "section",
+    "data_generation",
+    "saved_revision",
+    "active_revision",
+    "application_state",
+    "apply_operation_id",
+    "values",
+    "active_values"
+  ],
+  "title": "ConfigurationSection[RuntimeSettings]",
+  "type": "object"
+}
